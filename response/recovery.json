@@ -1,0 +1,30 @@
+{
+  "id": "recovery",
+  "label": "Recovery",
+  "button": {
+    "image": "../assets/button_rectangle.png",
+    "width": 375,
+    "height": 87,
+    "color": "#000"
+  },
+  "cards": [
+    {
+      "type": "5_10_38",
+      "name_deck": "recovery",
+      "points": "2",
+      "affected_zone": "zone-7"
+    },
+    {
+      "type": "5_10_39",
+      "name_deck": "recovery",
+      "points": "2",
+      "affected_zone": "zone-4"
+    },
+    {
+      "type": "5_10_40",
+      "name_deck": "recovery",
+      "points": "2",
+      "affected_zone": "zone-6"
+    }
+  ]
+}

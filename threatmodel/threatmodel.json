@@ -1,0 +1,31 @@
+{
+  "id": "threatmodel",
+  "label": "Threat Model",
+  "cards": [
+    {
+      "type": "1_1_1",
+      "points": "2",
+      "affected_zone": "zone-1"
+    },
+    {
+      "type": "1_1_2",
+      "points": "2",
+      "affected_zone": "zone-4"
+    },
+    {
+      "type": "1_1_3",
+      "points": "2",
+      "affected_zone": "zone-9"
+    },
+    {
+      "type": "1_1_4",
+      "points": "2",
+      "affected_zone": "zone-1"
+    },
+    {
+      "type": "1_1_5",
+      "points": "2",
+      "affected_zone": "zone-9"
+    }
+  ]
+}

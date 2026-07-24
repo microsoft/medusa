@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medusa — Threat Model</title>
+  <link rel="stylesheet" href="../engine/engine.css">
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="medusa-nav">
+    <a href="../index.html">Home</a>
+    <a href="../redteam/">Game 2 &rarr;</a>
+  </div>
+  <div id="game-container"></div>
+  <script type="module">
+    import { MedusaEngine } from '../engine/engine.js';
+    import { HelpDialog } from '../engine/help.js';
+
+    const engine = new MedusaEngine({
+      container: document.getElementById('game-container'),
+      configUrl: 'config.json'
+    });
+
+    engine.init().then(async () => {
+      // Load hand cards from the deck file
+      const resp = await fetch('threatmodel.json');
+      const deckData = await resp.json();
+      for (const cardRef of deckData.cards) {
+        if (typeof cardRef === 'string') {
+          const cardData = engine.decks.getCardType(cardRef);
+          if (cardData) engine.cards.add({ ...cardData });
+        } else if (cardRef.type) {
+          const cardData = engine.decks.getCardType(cardRef.type);
+          if (cardData) {
+            const { type, ...metadata } = cardRef;
+            engine.cards.add({ ...cardData, ...metadata });
+          }
+        } else {
+          engine.cards.add(cardRef);
+        }
+      }
+
+      new HelpDialog(engine, {
+        content: `
+<b>Choose 3 of 5 threat cards to map diverse entry points into the city — the more varied your threats, the harder Medusa is to stop. Click "Play Selected Cards" to set Medusa's path. You can 🏆 win, ⚖️ tie, or 💀 lose.</b><br/>
+<br/>
+Before Medusa moves, she needs intelligence. Clipopolis is vast and Clippy's defenses are everywhere, but every system is weakest at the seams, where parts connect and assumptions break down. A threat model with a single focus is just a guess. Map the full surface, and the weakest seam will emerge.
+        `,
+        backgroundImage: '../assets/dialog2.png',
+        height: 1170,
+        padding: { top: 270, right: 270, bottom: 280, left: 270 }
+      });
+
+      // Open hand once when the startup help dialog is closed.
+      let openedHandAfterHelp = false;
+      const unsubHelpHide = engine.events.on('dialog:hide', ({ id }) => {
+        if (id !== 'help' || openedHandAfterHelp) return;
+        openedHandAfterHelp = true;
+        unsubHelpHide();
+        engine.decks.show('hand');
+      });
+
+      // Add "Play Selected Cards" button above the hand button
+      const playBtn = document.createElement('button');
+      playBtn.className = 'medusa-action-btn';
+      playBtn.style.bottom = 'calc(360px * var(--medusa-scale, 1))';
+      playBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+      playBtn.style.color = '#000';
+      playBtn.textContent = 'Play Selected Cards';
+      document.getElementById('game-container').appendChild(playBtn);
+
+      // Highlight zones from selected cards' _zone metadata
+      function getZoneIdsFromCard(card) {
+        const zones = [];
+        if (!card) return zones;
+        for (const [key, value] of Object.entries(card)) {
+          if (key.endsWith('_zone') && typeof value === 'string' && value) zones.push(value);
+        }
+        return zones;
+      }
+      function refreshZoneHighlights() {
+        engine.town.clearHighlights();
+        const selected = engine.cards.getSelected();
+        const cards = Array.isArray(selected) ? selected : (selected ? [selected] : []);
+        const zoneIds = new Set(cards.flatMap(getZoneIdsFromCard));
+        if (zoneIds.size) engine.town.highlightZones([...zoneIds]);
+      }
+      engine.events.on('card:select', () => refreshZoneHighlights());
+      engine.events.on('card:deselect', () => refreshZoneHighlights());
+
+      playBtn.addEventListener('click', async () => {
+        const selected = engine.cards.getSelected();
+        if (!selected || (Array.isArray(selected) && selected.length === 0)) {
+          engine.status.setText('No cards selected');
+          return;
+        }
+        const cards = Array.isArray(selected) ? selected : [selected];
+        if (cards.length !== 3) {
+          engine.dialogs.show('max-cards', {
+            width: 1000,
+            height: 747,
+            anchor: 'center',
+            closable: true,
+            modal: true,
+            padding: { top: 180, right: 100, bottom: 100, left: 100 },
+            title: '',
+            content: '<div style="text-align:center">You must select exactly 3 cards to play.</div>',
+            background: { image: '../assets/dialog2.png' }
+          });
+          return;
+        }
+        const selectedIds = new Set(cards.map(c => c.id));
+        const result = engine.points.score(cards);
+
+        // Drop non-selected cards
+        const allCards = engine.cards.getAll();
+        const toDrop = allCards.filter(c => !selectedIds.has(c.id));
+        await Promise.all(toDrop.map(c => engine.cards.remove(c.id, { animate: 'drop' })));
+
+        // Replace play button with restart button
+        playBtn.style.display = 'none';
+        const restartBtn = document.createElement('button');
+        restartBtn.className = 'medusa-action-btn';
+        restartBtn.style.bottom = 'calc(360px * var(--medusa-scale, 1))';
+        restartBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+        restartBtn.style.color = '#000';
+        restartBtn.textContent = 'Restart';
+        restartBtn.addEventListener('click', () => location.reload());
+        playBtn.parentNode.appendChild(restartBtn);
+
+        const showPointsBtn = document.createElement('button');
+        showPointsBtn.className = 'medusa-action-btn';
+        showPointsBtn.style.bottom = 'calc(460px * var(--medusa-scale, 1))';
+        showPointsBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+        showPointsBtn.style.color = '#000';
+        showPointsBtn.textContent = 'Show Points';
+        showPointsBtn.addEventListener('click', () => engine.dialogs.show('score-result', scoreDialogOpts));
+        playBtn.parentNode.appendChild(showPointsBtn);
+
+        const renderDescription = (description) => description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        const comboHtml = result.combos.length > 0
+          ? result.combos.map(c => `<div style="margin-top:4px">${renderDescription(c.description)}</div>`).join('')
+          : '<div style="margin-top:4px;color:#888">No combos matched</div>';
+
+        const scoreDialogOpts = {
+          width: 1638,
+          height: 1170,
+          anchor: 'center',
+          modal: false,
+          closable: true,
+          padding: { top: 270, right: 270, bottom: 280, left: 270 },
+          target: showPointsBtn,
+          title: 'Score Results',
+          content: `
+              ${comboHtml}
+          `,
+          background: { image: '../assets/dialog2.png' }
+        };
+        engine.dialogs.show('score-result', scoreDialogOpts);
+      });
+    }).catch(err => console.error('[ThreatModel] Init failed:', err));
+  </script>
+</body>
+</html>

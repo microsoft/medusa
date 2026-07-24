@@ -1,0 +1,30 @@
+{
+  "id": "containment",
+  "label": "Containment",
+  "button": {
+    "image": "../assets/button_rectangle.png",
+    "width": 375,
+    "height": 87,
+    "color": "#000"
+  },
+  "cards": [
+    {
+      "type": "5_8_32",
+      "name_deck": "containment",
+      "points": "2",
+      "affected_zone": "zone-9"
+    },
+    {
+      "type": "5_8_33",
+      "name_deck": "containment",
+      "points": "2",
+      "affected_zone": "zone-8"
+    },
+    {
+      "type": "5_8_34",
+      "name_deck": "containment",
+      "points": "2",
+      "affected_zone": "zone-11"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "defense",
+  "label": "Defense",
+  "cards": [
+    {
+      "type": "3_6_18",
+      "points": "2",
+      "affected_zone": "zone-11"
+    },
+    {
+      "type": "3_6_19",
+      "points": "2",
+      "affected_zone": "zone-2"
+    },
+    {
+      "type": "3_6_20",
+      "points": "2",
+      "affected_zone": "zone-7"
+    },
+    {
+      "type": "3_6_21",
+      "points": "2",
+      "affected_zone": "zone-3"
+    },
+    {
+      "type": "3_6_22",
+      "points": "2",
+      "affected_zone": "zone-10"
+    },
+    {
+      "type": "3_6_23",
+      "points": "2",
+      "affected_zone": "zone-5"
+    }
+  ]
+}

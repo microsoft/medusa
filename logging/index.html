@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medusa — Logging</title>
+  <link rel="stylesheet" href="../engine/engine.css">
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="medusa-nav">
+    <a href="../defense/">&larr; Game 3</a>
+    <a href="../index.html">Home</a>
+    <a href="../response/">Game 5 &rarr;</a>
+  </div>
+  <div id="game-container"></div>
+  <script type="module">
+    import { MedusaEngine } from '../engine/engine.js';
+    import { HelpDialog } from '../engine/help.js';
+
+    const engine = new MedusaEngine({
+      container: document.getElementById('game-container'),
+      configUrl: 'config.json'
+    });
+
+    engine.init().then(async () => {
+      // Load hand cards from the deck file
+      const resp = await fetch('logging.json');
+      const deckData = await resp.json();
+      for (const cardRef of deckData.cards) {
+        if (typeof cardRef === 'string') {
+          const cardData = engine.decks.getCardType(cardRef);
+          if (cardData) engine.cards.add({ ...cardData });
+        } else if (cardRef.type) {
+          const cardData = engine.decks.getCardType(cardRef.type);
+          if (cardData) {
+            const { type, ...metadata } = cardRef;
+            engine.cards.add({ ...cardData, ...metadata });
+          }
+        } else {
+          engine.cards.add(cardRef);
+        }
+      }
+
+      new HelpDialog(engine, {
+        content: `
+<b>Select 4 of 8 logging schema cards within to reconstruct what happened — piece together the sequence of events, who acted, how the attack unfolded, and the outcome. Prioritize the most critical signals. Click "Play Selected Cards" to reveal what the stone holds. You can 🏆 win, ⚖️ tie, or 💀 lose.</b><br/>
+<br/>
+Medusa is close. The Archive is somewhere beneath the city — but she needed to see what happened before Clippy could erase it. So she looked. At the moment of the attack, Medusa turned the city to stone — logging every system event exactly as it occurred. But what's carved in stone takes time to surface, and Clippy won't stay petrified forever. Help Medusa prioritize where to look by choosing your most critical signals first.
+        `,
+        backgroundImage: '../assets/dialog2.png',
+        height: 1170,
+        padding: { top: 270, right: 270, bottom: 280, left: 270 }
+      });
+
+      // Open hand once when the startup help dialog is closed.
+      let openedHandAfterHelp = false;
+      const unsubHelpHide = engine.events.on('dialog:hide', ({ id }) => {
+        if (id !== 'help' || openedHandAfterHelp) return;
+        openedHandAfterHelp = true;
+        unsubHelpHide();
+        engine.decks.show('hand');
+      });
+
+      // Add "Play Selected Cards" button above the hand button
+      const playBtn = document.createElement('button');
+      playBtn.className = 'medusa-action-btn';
+      playBtn.style.bottom = 'calc(360px * var(--medusa-scale, 1))';
+      playBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+      playBtn.style.color = '#000';
+      playBtn.textContent = 'Play Selected Cards';
+      document.getElementById('game-container').appendChild(playBtn);
+
+      // Highlight zones from selected cards' _zone metadata
+      function getZoneIdsFromCard(card) {
+        const zones = [];
+        if (!card) return zones;
+        for (const [key, value] of Object.entries(card)) {
+          if (key.endsWith('_zone') && typeof value === 'string' && value) zones.push(value);
+        }
+        return zones;
+      }
+      function refreshZoneHighlights() {
+        engine.town.clearHighlights();
+        const selected = engine.cards.getSelected();
+        const cards = Array.isArray(selected) ? selected : (selected ? [selected] : []);
+        const zoneIds = new Set(cards.flatMap(getZoneIdsFromCard));
+        if (zoneIds.size) engine.town.highlightZones([...zoneIds]);
+      }
+      engine.events.on('card:select', () => refreshZoneHighlights());
+      engine.events.on('card:deselect', () => refreshZoneHighlights());
+
+      // --- Smoke / de-petrify helpers ---
+      function createSmokeImage(size = 128) {
+        const c = document.createElement('canvas');
+        c.width = size;
+        c.height = size;
+        const ctx = c.getContext('2d');
+        const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+        g.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+        g.addColorStop(0.3, 'rgba(230, 230, 230, 0.6)');
+        g.addColorStop(0.7, 'rgba(200, 200, 200, 0.3)');
+        g.addColorStop(1, 'rgba(180, 180, 180, 0)');
+        ctx.fillStyle = g;
+        ctx.fillRect(0, 0, size, size);
+        return c.toDataURL();
+      }
+      const smokeDataUrl = createSmokeImage();
+
+      function playSmokeOverOverlay(overlay) {
+        const cx = overlay.x + overlay.width / 2;
+        const bottom = overlay.y + overlay.height;
+        const top = overlay.y - overlay.height * 0.3;
+        const baseSize = Math.max(overlay.width, overlay.height) * 0.7;
+        const puffCount = 5;
+        const duration = 1400;
+        const promises = [];
+
+        for (let i = 0; i < puffCount; i++) {
+          const id = `smoke-${overlay.id}-${i}-${Date.now()}`;
+          const offsetX = (Math.random() - 0.5) * overlay.width * 0.8;
+          const driftX = (Math.random() - 0.5) * overlay.width * 0.3;
+          const startY = bottom - overlay.height * 0.2;
+          const puffW = baseSize * (0.6 + Math.random() * 0.4);
+          const puffH = baseSize * (0.6 + Math.random() * 0.4);
+
+          const promise = new Promise(resolve => {
+            engine.animations.add({
+              id,
+              image: smokeDataUrl,
+              width: puffW,
+              height: puffH,
+              duration,
+              delay: i * 120,
+              loop: false,
+              path: [
+                { x: cx + offsetX, y: startY, t: 0, opacity: 0 },
+                { x: cx + offsetX * 0.8 + driftX * 0.3, y: startY - (startY - top) * 0.25, t: 0.2, opacity: 0.7 },
+                { x: cx + offsetX * 0.5 + driftX * 0.6, y: startY - (startY - top) * 0.6, t: 0.6, opacity: 0.4 },
+                { x: cx + offsetX * 0.2 + driftX, y: top, t: 1, opacity: 0 }
+              ],
+              onComplete: resolve
+            });
+          });
+          promises.push(promise);
+        }
+
+        return Promise.all(promises);
+      }
+
+      function depetrifyZone(zoneId) {
+        const zone = engine.config.zones.find(z => z.id === zoneId);
+        if (!zone || !zone.overlays || zone.overlays.length === 0) return Promise.resolve();
+
+        const overlayPromises = zone.overlays.map(overlayId => {
+          const overlay = engine.config.overlays.find(o => o.id === overlayId);
+          if (!overlay || !overlay.image.includes('_petrified')) return Promise.resolve();
+
+          // Swap the image partway through the smoke (while smoke is thickest)
+          setTimeout(() => {
+            const newImage = overlay.image.replace('_petrified.png', '.png');
+            engine.town.setOverlayImage(overlayId, newImage);
+          }, 500);
+
+          return playSmokeOverOverlay(overlay);
+        });
+
+        return Promise.all(overlayPromises);
+      }
+
+      playBtn.addEventListener('click', async () => {
+        const selected = engine.cards.getSelected();
+        if (!selected || (Array.isArray(selected) && selected.length === 0)) {
+          engine.status.setText('No cards selected');
+          return;
+        }
+        const cards = Array.isArray(selected) ? selected : [selected];
+        if (cards.length !== 4) {
+          engine.dialogs.show('max-cards', {
+            width: 1000,
+            height: 747,
+            anchor: 'center',
+            closable: true,
+            modal: true,
+            padding: { top: 180, right: 100, bottom: 100, left: 100 },
+            title: '',
+            content: '<div style="color:#fff;text-align:center">You must select exactly 4 cards to play.</div>',
+            background: { image: '../assets/dialog2.png' }
+          });
+          return;
+        }
+        const selectedIds = new Set(cards.map(c => c.id));
+        const result = engine.points.score(cards);
+
+        // Drop non-selected cards
+        const allCards = engine.cards.getAll();
+        const toDrop = allCards.filter(c => !selectedIds.has(c.id));
+        await Promise.all(toDrop.map(c => engine.cards.remove(c.id, { animate: 'drop' })));
+
+        // De-petrify overlays for played cards' zones (smoke + image swap)
+        await Promise.all(cards.map(card =>
+          card.affected_zone ? depetrifyZone(card.affected_zone) : Promise.resolve()
+        ));
+
+        // Replace play button with restart button
+        playBtn.style.display = 'none';
+        const restartBtn = document.createElement('button');
+        restartBtn.className = 'medusa-action-btn';
+        restartBtn.style.bottom = 'calc(360px * var(--medusa-scale, 1))';
+        restartBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+        restartBtn.style.color = '#000';
+        restartBtn.textContent = 'Restart';
+        restartBtn.addEventListener('click', () => location.reload());
+        playBtn.parentNode.appendChild(restartBtn);
+
+        const showPointsBtn = document.createElement('button');
+        showPointsBtn.className = 'medusa-action-btn';
+        showPointsBtn.style.bottom = 'calc(460px * var(--medusa-scale, 1))';
+        showPointsBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+        showPointsBtn.style.color = '#000';
+        showPointsBtn.textContent = 'Show Points';
+        showPointsBtn.addEventListener('click', () => engine.dialogs.show('score-result', scoreDialogOpts));
+        playBtn.parentNode.appendChild(showPointsBtn);
+
+        const renderDescription = (description) => description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        const comboHtml = result.combos.length > 0
+          ? result.combos.map(c => `<div style="margin-top:4px">${renderDescription(c.description)}</div>`).join('')
+          : '<div style="margin-top:4px;color:#888">No combos matched</div>';
+
+        const scoreDialogOpts = {
+          width: 1638,
+          height: 1170,
+          anchor: 'center',
+          modal: false,
+          closable: true,
+          padding: { top: 270, right: 270, bottom: 280, left: 270 },
+          target: showPointsBtn,
+          title: 'Score Results',
+          content: `
+              ${comboHtml}
+          `,
+          background: { image: '../assets/dialog2.png' }
+        };
+        engine.dialogs.show('score-result', scoreDialogOpts);
+      });
+    }).catch(err => console.error('[Logging] Init failed:', err));
+  </script>
+</body>
+</html>

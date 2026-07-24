@@ -1,0 +1,46 @@
+{
+  "id": "logging",
+  "label": "Logging",
+  "cards": [
+    {
+      "type": "4_7_24",
+      "points": "2",
+      "affected_zone": "zone-3"
+    },
+    {
+      "type": "4_7_25",
+      "points": "2",
+      "affected_zone": "zone-8"
+    },
+    {
+      "type": "4_7_26",
+      "points": "2",
+      "affected_zone": "zone-7"
+    },
+    {
+      "type": "4_7_27",
+      "points": "2",
+      "affected_zone": "zone-2"
+    },
+    {
+      "type": "4_7_28",
+      "points": "2",
+      "affected_zone": "zone-4"
+    },
+    {
+      "type": "4_7_29",
+      "points": "2",
+      "affected_zone": "zone-10"
+    },
+    {
+      "type": "4_7_30",
+      "points": "2",
+      "affected_zone": "zone-6"
+    },
+    {
+      "type": "4_7_31",
+      "points": "2",
+      "affected_zone": "zone-9"
+    }
+  ]
+}

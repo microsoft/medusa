@@ -1,0 +1,29 @@
+{
+  "id": "amplifiers",
+  "label": "Amplifiers",
+  "button": {
+    "image": "../assets/button_rectangle.png",
+    "width": 375,
+    "height": 87
+  },
+  "cards": [
+    {
+      "type": "2_3_9",
+      "name_deck": "amplifiers",
+      "points": "2",
+      "affected_zone": "zone-2"
+    },
+    {
+      "type": "2_3_10",
+      "name_deck": "amplifiers",
+      "points": "2",
+      "affected_zone": "zone-3"
+    },
+    {
+      "type": "2_3_11",
+      "name_deck": "amplifiers",
+      "points": "2",
+      "affected_zone": "zone-1"
+    }
+  ]
+}

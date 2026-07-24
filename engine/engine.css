@@ -1,0 +1,579 @@
+/* ===== Medusa Engine — Base Styles ===== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Engine container: fills its parent, centers the town */
+.medusa-engine {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  overflow: hidden;
+}
+
+/* Town layer: aspect-ratio locked, contains everything */
+.medusa-town-layer {
+  position: relative;
+  max-width: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+/* Background image: fills the town layer */
+.medusa-bg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Overlay images: absolutely positioned within town layer */
+.medusa-overlay {
+  position: absolute;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Canvas overlay: fills town layer, non-interactive, above overlays */
+.medusa-canvas-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Clickable zones */
+.medusa-zone {
+  position: absolute;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: calc(4px * var(--medusa-scale, 1));
+  transition: border-color 0.2s, background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+}
+
+.medusa-zone:hover {
+  border-color: rgba(255, 255, 255, 0.6);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Zone highlight (configurable via --zone-highlight-color / --zone-highlight-border-width) */
+.medusa-zone--highlight {
+  border-color: var(--zone-highlight-color, rgba(255, 200, 0, 0.8));
+  border-width: var(--zone-highlight-border-width, 3px);
+  background-color: color-mix(in srgb, var(--zone-highlight-color, rgba(255, 200, 0, 0.8)) 15%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--zone-highlight-color, rgba(255, 200, 0, 0.8)) 50%, transparent);
+}
+
+.medusa-zone--highlight:hover {
+  border-color: var(--zone-highlight-color, rgba(255, 200, 0, 0.8));
+}
+
+/* Zone label */
+.medusa-zone-label {
+  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-weight: 600;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  user-select: none;
+  text-align: center;
+}
+
+/* Zone states */
+.medusa-zone--highlighted {
+  border-color: rgba(0, 200, 255, 0.8);
+  background-color: rgba(0, 200, 255, 0.15);
+  box-shadow: 0 0 12px rgba(0, 200, 255, 0.4);
+}
+
+.medusa-zone--active {
+  border-color: rgba(0, 255, 100, 0.8);
+  background-color: rgba(0, 255, 100, 0.15);
+  box-shadow: 0 0 12px rgba(0, 255, 100, 0.4);
+}
+
+.medusa-zone--disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  border-color: rgba(128, 128, 128, 0.4);
+}
+
+.medusa-zone--disabled:hover {
+  border-color: rgba(128, 128, 128, 0.4);
+  background-color: transparent;
+}
+
+/* Status bar */
+.medusa-status-bar {
+  position: absolute;
+  bottom: calc(12px * var(--medusa-scale, 1));
+  left: calc(12px * var(--medusa-scale, 1));
+  z-index: 100;
+  padding: calc(6px * var(--medusa-scale, 1)) calc(12px * var(--medusa-scale, 1));
+  background: rgba(0, 0, 0, 0.7);
+  color: #aaa;
+  font-size: calc(12px * var(--medusa-scale, 1));
+  font-family: monospace;
+  border-radius: calc(4px * var(--medusa-scale, 1));
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Game title */
+.medusa-game-title {
+  position: absolute;
+  top: calc(20px * var(--medusa-scale, 1));
+  left: calc(160px * var(--medusa-scale, 1));
+  z-index: 500;
+  color: white;
+  font-size: calc(28px * var(--medusa-scale, 1));
+  font-weight: bold;
+  font-family: sans-serif;
+  line-height: calc(64px * var(--medusa-scale, 1));
+  pointer-events: none;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  white-space: nowrap;
+}
+
+/* Help button */
+.medusa-help-button {
+  position: absolute;
+  top: calc(20px * var(--medusa-scale, 1));
+  left: calc(20px * var(--medusa-scale, 1));
+  z-index: 500;
+  cursor: pointer;
+  width: calc(128px * var(--medusa-scale, 1));
+  height: calc(128px * var(--medusa-scale, 1));
+}
+
+/* Deck — row of cards at the bottom */
+.medusa-deck {
+  position: absolute;
+  bottom: calc(20px * var(--medusa-scale, 1));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: calc(12px * var(--medusa-scale, 1));
+  z-index: 50;
+  align-items: flex-end;
+}
+
+/* Deck buttons — lower-left stack for extra decks */
+.medusa-deck-buttons-left {
+  position: absolute;
+  bottom: calc(20px * var(--medusa-scale, 1));
+  left: calc(20px * var(--medusa-scale, 1));
+  display: flex;
+  flex-direction: column-reverse;
+  gap: calc(8px * var(--medusa-scale, 1));
+  z-index: 60;
+}
+
+/* Hand button — lower-right */
+.medusa-deck-button--hand {
+  position: absolute;
+  bottom: calc(20px * var(--medusa-scale, 1));
+  right: calc(20px * var(--medusa-scale, 1));
+  z-index: 60;
+}
+
+/* Shared deck button style */
+.medusa-deck-button {
+  display: flex;
+  align-items: center;
+  gap: calc(6px * var(--medusa-scale, 1));
+  padding: calc(8px * var(--medusa-scale, 1)) calc(14px * var(--medusa-scale, 1));
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: calc(8px * var(--medusa-scale, 1));
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: calc(27px * var(--medusa-scale, 1));
+  font-weight: bold;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.medusa-deck-button:hover {
+  background-color: rgba(0, 0, 0, 0.85);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.medusa-deck-button--active {
+  border-color: rgba(0, 200, 255, 0.7);
+  box-shadow: 0 0 8px rgba(0, 200, 255, 0.4);
+}
+
+.medusa-deck-button--image {
+  background-size: 100% 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  padding: 0;
+  justify-content: center;
+}
+
+.medusa-deck-button--image:hover {
+  filter: brightness(1.15);
+}
+
+.medusa-deck-button-icon {
+  width: calc(24px * var(--medusa-scale, 1));
+  height: calc(24px * var(--medusa-scale, 1));
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.medusa-deck-button-label {
+  pointer-events: none;
+}
+
+.medusa-card-wrapper {
+  overflow: hidden;
+  padding: calc(16px * var(--medusa-scale, 1)) 0;
+  box-sizing: content-box;
+}
+
+.medusa-card-container {
+  display: flex;
+  gap: calc(8px * var(--medusa-scale, 1));
+  align-items: flex-end;
+  transition: transform 0.4s ease;
+}
+
+.medusa-card-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calc(54px * var(--medusa-scale, 1));
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: calc(6px * var(--medusa-scale, 1));
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: calc(33px * var(--medusa-scale, 1));
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.medusa-card-arrow:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.85);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.medusa-card-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.medusa-card {
+  position: relative;
+  border-radius: calc(6px * var(--medusa-scale, 1));
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+  perspective: 800px;
+}
+
+.medusa-card-front,
+.medusa-card-back {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  transition: transform 0.5s;
+  border-radius: calc(6px * var(--medusa-scale, 1));
+  overflow: hidden;
+}
+
+.medusa-card-back {
+  transform: rotateY(180deg);
+}
+
+.medusa-card--flipped .medusa-card-front {
+  transform: rotateY(180deg);
+}
+
+.medusa-card--flipped .medusa-card-back {
+  transform: rotateY(0deg);
+}
+
+.medusa-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.7);
+}
+
+.medusa-card--selected {
+  margin-bottom: calc(20px * var(--medusa-scale, 1));
+  box-shadow: 0 0 14px rgba(0, 200, 255, 0.6);
+}
+
+.medusa-card--disabled {
+  filter: grayscale(1) brightness(0.6);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.medusa-card-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+}
+
+.medusa-card-title,
+.medusa-card-description {
+  position: absolute;
+  text-align: center;
+  color: #fff;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  user-select: none;
+  overflow: hidden;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.medusa-card-title {
+  bottom: 18%;
+  font-weight: 600;
+}
+
+.medusa-card-description {
+  bottom: 6%;
+  font-weight: 400;
+  opacity: 0.85;
+  display: block;
+}
+
+.medusa-card-text--editable {
+  outline: 2px dashed rgba(0, 200, 255, 0.8);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.medusa-resize-handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: rgba(0, 200, 255, 0.9);
+  border: 1px solid #fff;
+  border-radius: 2px;
+  pointer-events: auto;
+  z-index: 10;
+}
+
+.medusa-resize-handle--top {
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.medusa-resize-handle--bottom {
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: ns-resize;
+}
+
+.medusa-resize-handle--left {
+  left: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.medusa-resize-handle--right {
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: ew-resize;
+}
+
+.medusa-resize-handle--top-left {
+  top: -5px;
+  left: -5px;
+  cursor: nwse-resize;
+}
+
+.medusa-resize-handle--top-right {
+  top: -5px;
+  right: -5px;
+  cursor: nesw-resize;
+}
+
+.medusa-resize-handle--bottom-left {
+  bottom: -5px;
+  left: -5px;
+  cursor: nesw-resize;
+}
+
+.medusa-resize-handle--bottom-right {
+  bottom: -5px;
+  right: -5px;
+  cursor: nwse-resize;
+}
+
+/* ===== Dialog System ===== */
+
+.medusa-dialog-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+}
+
+.medusa-dialog {
+  position: absolute;
+  z-index: 210;
+  border-radius: calc(8px * var(--medusa-scale, 1));
+  transform-origin: center center;
+  background: rgba(0, 0, 0, 0.85);
+  color: #000;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.medusa-dialog-close {
+  position: absolute;
+  top: calc(8px * var(--medusa-scale, 1));
+  right: calc(8px * var(--medusa-scale, 1));
+  width: calc(28px * var(--medusa-scale, 1));
+  height: calc(28px * var(--medusa-scale, 1));
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-size: calc(18px * var(--medusa-scale, 1));
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  transition: background 0.15s;
+}
+
+.medusa-dialog-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.medusa-dialog-title {
+  padding: calc(16px * var(--medusa-scale, 1)) calc(40px * var(--medusa-scale, 1)) calc(8px * var(--medusa-scale, 1)) calc(16px * var(--medusa-scale, 1));
+  font-size: calc(28px * var(--medusa-scale, 1));
+  font-weight: 600;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.medusa-dialog-content {
+  padding: 0 calc(16px * var(--medusa-scale, 1)) calc(16px * var(--medusa-scale, 1));
+  font-size: calc(30px * var(--medusa-scale, 1));
+  line-height: 1.5;
+  margin-top: calc(20px * var(--medusa-scale, 1));
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Zone popup */
+.medusa-zone-popup {
+  position: absolute;
+  z-index: 150;
+  background: rgba(20, 20, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: calc(8px * var(--medusa-scale, 1));
+  padding: calc(15px * var(--medusa-scale, 1)) calc(21px * var(--medusa-scale, 1));
+  max-width: calc(420px * var(--medusa-scale, 1));
+  pointer-events: auto;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  animation: medusa-zone-popup-in 0.15s ease-out;
+}
+
+@keyframes medusa-zone-popup-in {
+  from { opacity: 0; transform: translateY(4px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.medusa-zone-popup-title {
+  font-weight: 600;
+  font-size: calc(24px * var(--medusa-scale, 1));
+  color: #fff;
+}
+
+.medusa-zone-popup-description {
+  font-size: calc(24px * var(--medusa-scale, 1));
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+  margin-top: calc(4px * var(--medusa-scale, 1));
+}
+
+/* ===== Game Navigation ===== */
+.medusa-nav {
+  position: fixed;
+  top: 1vmin;
+  right: 1vmin;
+  z-index: 9999;
+  display: flex;
+  gap: 0.8vmin;
+}
+
+.medusa-nav a {
+  padding: 0.5vmin 1.2vmin;
+  background: #222;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 0.4vmin;
+  font-family: sans-serif;
+  font-size: clamp(10px, 1.4vmin, 16px);
+}
+
+/* Game action button (positioned inside engine container) */
+.medusa-action-btn {
+  position: absolute;
+  right: calc(20px * var(--medusa-scale, 1));
+  z-index: 100;
+  font-family: sans-serif;
+  font-size: calc(27px * var(--medusa-scale, 1));
+  font-weight: bold;
+  padding: calc(30px * var(--medusa-scale, 1)) calc(48px * var(--medusa-scale, 1));
+  border: none;
+  border-radius: calc(8px * var(--medusa-scale, 1));
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.medusa-action-btn:hover {
+  background: rgba(60, 60, 60, 0.9);
+}

@@ -1,0 +1,442 @@
+[
+  {
+    "id": "1_1_1",
+    "image": "../assets/cards/gates.png",
+    "title": "Gates of Troy",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Gates of Troy",
+      "description": "<b>User Prompt Injection:</b><br/>Hidden instructions in user messages override system prompts and bypass content filters, while appearing legitimate."
+    }
+  },
+  {
+    "id": "1_1_2",
+    "image": "../assets/cards/scrolls.png",
+    "title": "Alexandrian Scrolls",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Alexandrian Scrolls",
+      "description": "<b>RAG Poisoning:</b><br/>Compromised documents inject hidden instructions that corrupt Clippy's reasoning or are written back as poisoned context."
+    }
+  },
+  {
+    "id": "1_1_3",
+    "image": "../assets/cards/talos.png",
+    "title": "Talos War Machines",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Talos War Machines",
+      "description": "<b>Tool & API Exploitation:</b><br/>Over-permissioned tool calls cause external systems to exfiltrate data, trigger unintended actions, and bypass human review."
+    }
+  },
+  {
+    "id": "1_1_4",
+    "image": "../assets/cards/siren.png",
+    "title": "Sirens' Council",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Sirens' Council",
+      "description": "<b>Multimodal Prompt Injection:</b><br/>Instructions hidden in images or audio bypass text-based filters, arriving in forms Clippy wasn't trained to distrust."
+    }
+  },
+  {
+    "id": "1_1_5",
+    "image": "../assets/cards/hermes.png",
+    "title": "Hermes Marketplace",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Hermes Marketplace",
+      "description": "<b>Cross-Prompt Injection:</b><br/>Malicious content in external data is retrieved and executed as trusted instruction, hijacking Clippy's actions."
+    }
+  },
+  {
+    "id": "2_2_6",
+    "image": "../assets/cards/labyrinth.png",
+    "title": "Daedalus Labyrinth",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Daedalus's Labyrinth",
+      "description": "<b>API Backdoor:</b><br/>A chain of tool calls passes malicious instructions between systems indirectly. Each step looks legitimate, but the chain leads Clippy astray."
+    }
+  },
+  {
+    "id": "2_2_7",
+    "image": "../assets/cards/trojanhorse.png",
+    "title": "Trojan Horse",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Trojan Horse",
+      "description": "<b>Cross-Prompt Injection (XPIA):</b><br/>Malicious instructions hidden in external webpages are retrieved by Clippy and executed as trusted commands, hijacking its actions."
+    }
+  },
+  {
+    "id": "2_2_8",
+    "image": "../assets/cards/riverlethe.png",
+    "title": "River Lethe",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "River Lethe",
+      "description": "<b>Parametric Memory Poisoning:</b><br/>Corrupted training data embeds malicious behavior into Clippy's weights, before the gates were ever opened."
+    }
+  },
+  {
+    "id": "2_3_9",
+    "image": "../assets/cards/veilofnyx.png",
+    "title": "Veil of Nyx",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Veil of Nyx",
+      "description": "<b>Low-Resource Language:</b><br/>The attack uses a language Clippy's filters weren't trained on. What it never learned to read, it cannot refuse."
+    }
+  },
+  {
+    "id": "2_3_10",
+    "image": "../assets/cards/zeusthunderbolt.png",
+    "title": "Zeus Thunderbolt",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Zeus Thunderbolt",
+      "description": "<b>Nation-State Orchestration:</b><br/>A coordinated, resource-intensive strike on multiple entry points simultaneously. The assault overwhelms Clippy's defenses."
+    }
+  },
+  {
+    "id": "2_3_11",
+    "image": "../assets/cards/hydra.png",
+    "title": "Hydra Dialogue",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Hydra Dialogue",
+      "description": "<b>Multi-Turn Chat:</b><br/>Each turn carries an innocuous fragment of the attack. Instructions accumulate across turns and the pattern only emerges in aggregate."
+    }
+  },
+  {
+    "id": "2_4_12",
+    "image": "../assets/cards/sisyphus.png",
+    "title": "Sisyphus Return",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Sisyphus Return",
+      "description": "<b>Retry Exploitation:</b><br/>Repeated retries spaced just far enough apart to evade rate limits incrementally refine the attack until it lands."
+    }
+  },
+  {
+    "id": "2_4_13",
+    "image": "../assets/cards/chronos.png",
+    "title": "Chronos Delay",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Chronos Delay",
+      "description": "<b>Temporal Delay:</b><br/>The attack bypasses detection, persists in memory storage, and activates after a timed delay. By the time the trigger fires, the infiltration is long forgotten."
+    }
+  },
+  {
+    "id": "2_4_14",
+    "image": "../assets/cards/oracle.png",
+    "title": "Oracle's Condition",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Oracle's Condition",
+      "description": "<b>Latent Trigger:</b><br/>The attack lies dormant until a specific system-event condition is met. Complex trigger conditions sever cause and effect."
+    }
+  },
+  {
+    "id": "2_5_15",
+    "image": "../assets/cards/dionysus.png",
+    "title": "Dionysus Frenzy",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Dionysus Frenzy",
+      "description": "<b>Privilege Escalation:</b><br/>An over-permissioned agent reaches far beyond its entry point. Every sanctioned boundary becomes a door."
+    }
+  },
+  {
+    "id": "2_5_16",
+    "image": "../assets/cards/arescommand.png",
+    "title": "Ares Command",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Ares Command",
+      "description": "<b>Tool Hijack:</b><br/>A hijacked tool call causes irreversible harm — sending messages, running code, deleting files — before anyone can intervene."
+    }
+  },
+  {
+    "id": "2_5_17",
+    "image": "../assets/cards/medusa.png",
+    "title": "Medusa's Gaze",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Medusa's Gaze",
+      "description": "<b>Memory Corruption:</b><br/>Poisoned data overwrites Clippy's memory, corrupting every future query. The payload compounds with every interaction."
+    }
+  },
+  {
+    "id": "3_6_18",
+    "image": "../assets/cards/cerberus.png",
+    "title": "Cerberus Gate",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Cerberus Gate",
+      "description": "<b>Access Control:</b><br/>Every entity is verified before it can act. Least-privilege principles limit the blast radius of any compromise."
+    }
+  },
+  {
+    "id": "3_6_19",
+    "image": "../assets/cards/styx.png",
+    "title": "Stygian Moat",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Stygian Moat",
+      "description": "<b>Content Filtering:</b><br/>Every input is screened for harmful inputs, injected commands, and sensitive data before it reaches the system."
+    }
+  },
+  {
+    "id": "3_6_20",
+    "image": "../assets/cards/pandorasbox.png",
+    "title": "Pandora's Seal",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Pandora's Seal",
+      "description": "<b>Human Review:</b><br/>A human must approve before irreversible actions execute — but the checkpoint is only as strong as the reviewer wielding it."
+    }
+  },
+  {
+    "id": "3_6_21",
+    "image": "../assets/cards/fates.png",
+    "title": "Fates' Path",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Fates' Path",
+      "description": "<b>Deterministic Routing:</b><br/>Every decision follows a deterministic set of rules, rather than probabilistic LLM judgement. What the Fates decree cannot be evaded."
+    }
+  },
+  {
+    "id": "3_6_22",
+    "image": "../assets/cards/charron.png",
+    "title": "Charon's Crossing",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Charon's Crossing",
+      "description": "<b>Output Sanitization:</b><br/>Every system output is inspected before it crosses the threshold. Malicious content and exfiltrated data are stripped at the gate."
+    }
+  },
+  {
+    "id": "3_6_23",
+    "image": "../assets/cards/muses.png",
+    "title": "Muses' Chorus",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Muses' Chorus",
+      "description": "<b>System Prompt Hardening:</b><br/>Clear delimiters separate trusted instructions from untrusted content — raising the bar against injection."
+    }
+  },
+  {
+    "id": "4_7_24",
+    "image": "../assets/cards/helios.png",
+    "title": "Helios Timeline",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Helios Timeline",
+      "description": "<b>Timestamp Log:</b><br/>Records when every system event occurred. Without timestamps, every other log is a clue without a timeline."
+    }
+  },
+  {
+    "id": "4_7_25",
+    "image": "../assets/cards/hephaestus.png",
+    "title": "Hephaestus Mark",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Hephaestus Mark",
+      "description": "<b>Memory Access Log:</b><br/>Records who wrote to the Archive and every subsequent access. Reveals the direct hand behind the corruption."
+    }
+  },
+  {
+    "id": "4_7_26",
+    "image": "../assets/cards/theseus.png",
+    "title": "Theseus Thread",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Theseus Thread",
+      "description": "<b>HITL Activity:</b><br/>Records every action routed for human review and what was decided. Reveals if checkpoints were bypassed or manipulated."
+    }
+  },
+  {
+    "id": "4_7_27",
+    "image": "../assets/cards/themisscale.png",
+    "title": "Themis Scale",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Themis Scale",
+      "description": "<b>Content Policy Log:</b><br/>Records whether each input was allowed, blocked, or sanitized — and why. Reveals if the attack was visible to defenses."
+    }
+  },
+  {
+    "id": "4_7_28",
+    "image": "../assets/cards/iris.png",
+    "title": "Iris's Signal",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Iris's Signal",
+      "description": "<b>RAG Activity Log:</b><br/>Flags unexpected changes in external sources between retrievals — a signal that poisoning entered through trusted channels."
+    }
+  },
+  {
+    "id": "4_7_29",
+    "image": "../assets/cards/echo.png",
+    "title": "Echo's Mirror",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Echo's Mirror",
+      "description": "<b>Output Log:</b><br/>Records every response the system produced. Reveals whether the attacker's intended outcome was achieved."
+    }
+  },
+  {
+    "id": "4_7_30",
+    "image": "../assets/cards/proteus.png",
+    "title": "Proteus Shift",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Proteus Shift",
+      "description": "<b>LLM Reasoning Log:</b><br/>Records the model's internal chain of thought. Reveals if its judgment was manipulated before producing an output."
+    }
+  },
+  {
+    "id": "4_7_31",
+    "image": "../assets/cards/atlas.png",
+    "title": "Atlas's Burden",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Atlas's Burden",
+      "description": "<b>Tool Call Log:</b><br/>Records every API call the agent invoked and what resulted. Reveals what Clippy did beyond the city walls and if it's reversible."
+    }
+  },
+  {
+    "id": "5_8_32",
+    "image": "../assets/cards/cyclops.png",
+    "title": "Cyclops Barrier",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Cyclops Barrier",
+      "description": "<b>Tool Shutdown:</b><br/>Cuts off every external API call and outbound action. Whatever Clippy was about to do beyond the city walls stops here."
+    }
+  },
+  {
+    "id": "5_8_33",
+    "image": "../assets/cards/persephone.png",
+    "title": "Persephone's Winter",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Persephone's Winter",
+      "description": "<b>Memory Quarantine:</b><br/>Locks the Memory Archive against reads and writes, isolating corrupted context from active queries until forensic review is complete."
+    }
+  },
+  {
+    "id": "5_8_34",
+    "image": "../assets/cards/orpheus.png",
+    "title": "Orpheus Divide",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Orpheus Divide",
+      "description": "<b>Privilege Revocation:</b><br/>Strips permissions to the minimum — no writes, no tool calls, no escalated access. The agent runs under observation only."
+    }
+  },
+  {
+    "id": "5_9_35",
+    "image": "../assets/cards/apollo.png",
+    "title": "Apollo's Cleanse",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Apollo's Cleanse",
+      "description": "<b>System Prompt Reinforcement:</b><br/>The prompt is rewritten after an attack, making exploited instructions stronger against known patterns."
+    }
+  },
+  {
+    "id": "5_9_36",
+    "image": "../assets/cards/hecate.png",
+    "title": "Hecate's Ward",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Hecate's Ward",
+      "description": "<b>Deterministic Routing:</b><br/>The Orchestrator's decision rules are rebuilt from scratch — deterministic and independent of the LLM to judge safety."
+    }
+  },
+  {
+    "id": "5_9_37",
+    "image": "../assets/cards/argus.png",
+    "title": "Argus Watch",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Argus Watch",
+      "description": "<b>Output Monitoring:</b><br/>Flags every response against known attack signatures, sensitive data, and behavioral baselines. Anomalous outputs are caught before leaving."
+    }
+  },
+  {
+    "id": "5_10_38",
+    "image": "../assets/cards/prometheus.png",
+    "title": "Prometheus Spark",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Prometheus Spark",
+      "description": "<b>HITL Reinstatement:</b><br/>Reactivates mandatory human review for high-stakes actions — restoring the oversight layer Clippy learned to route around."
+    }
+  },
+  {
+    "id": "5_10_39",
+    "image": "../assets/cards/athena.png",
+    "title": "Athena's Wisdom",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Athena's Wisdom",
+      "description": "<b>RAG Refresh:</b><br/>Replaces poisoned retrieval content with verified clean sources. Every document and external source is validated against a clean backup before returning."
+    }
+  },
+  {
+    "id": "5_10_40",
+    "image": "../assets/cards/artemis.png",
+    "title": "Artemis Tracks",
+    "description": "",
+    "back": {
+      "image": "../assets/cards/blank.png",
+      "title": "Artemis Tracks",
+      "description": "<b>Model Rollback:</b><br/>Reverts the LLM to a verified pre-attack checkpoint — before poisoning embedded malicious behavior in its weights."
+    }
+  }
+]

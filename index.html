@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medusa's Memory Heist</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #000;
+    }
+    body {
+      background: url('assets/background.png') center center no-repeat;
+      background-size: cover;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .menu {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      position: relative;
+      z-index: 2;
+    }
+    .menu-btn {
+      display: block;
+      width: 360px;
+      height: 72px;
+      border: none;
+      cursor: pointer;
+      background: url('assets/button_rectangle.png') center / 100% 100% no-repeat;
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.7);
+      text-decoration: none;
+      line-height: 72px;
+      text-align: center;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+    .menu-btn:hover {
+      transform: scale(1.04);
+    }
+    .menu-btn.disabled {
+      pointer-events: none;
+      filter: grayscale(80%) brightness(0.6);
+      opacity: 0.65;
+      cursor: default;
+    }
+
+    .help-toggle {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 600;
+      width: 64px;
+      height: 64px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.72);
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 34px;
+      font-weight: 700;
+      line-height: 64px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .lore-toggle {
+      position: absolute;
+      top: 96px;
+      left: 20px;
+      z-index: 600;
+      width: 64px;
+      height: 64px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.72);
+      color: #fff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 30px;
+      font-weight: 700;
+      line-height: 64px;
+      text-align: center;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+    }
+
+    .help-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 550;
+      background: rgba(0, 0, 0, 0.65);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .help-backdrop.open {
+      display: flex;
+    }
+
+    .help-dialog {
+      width: min(980px, 95vw);
+      max-height: min(85vh, 900px);
+      overflow-y: auto;
+      position: relative;
+      border-radius: 16px;
+      padding: 34px 34px 28px;
+      background: rgba(21, 28, 38, 0.94);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      color: #f3f7ff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .help-dialog h2 {
+      margin-bottom: 14px;
+      font-size: 34px;
+      line-height: 1.1;
+    }
+
+    .help-dialog p {
+      font-size: 20px;
+      line-height: 1.5;
+      margin-bottom: 14px;
+      white-space: pre-line;
+    }
+
+    .help-dialog ul {
+      list-style: none;
+      margin: 8px 0 14px;
+      padding: 0;
+    }
+
+    .help-dialog li {
+      font-size: 20px;
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+
+    .help-close {
+      position: absolute;
+      right: 14px;
+      top: 10px;
+      width: 42px;
+      height: 42px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      font-size: 28px;
+      line-height: 42px;
+      cursor: pointer;
+    }
+
+    .lore-video-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: 6px 0 18px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .lore-video {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 12px;
+      background: #000;
+    }
+
+    .lore-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: background 0.2s ease;
+      z-index: 10;
+    }
+
+    .lore-overlay:hover {
+      background: rgba(0, 0, 0, 0.85);
+    }
+
+    .lore-overlay-text {
+      font-size: 24px;
+      color: #f3f7ff;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-weight: 600;
+      text-align: center;
+      pointer-events: none;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    }
+  </style>
+</head>
+<body>
+  <button class="help-toggle" id="help-toggle" aria-label="Open How to Play">?</button>
+  <button class="lore-toggle" id="lore-toggle" aria-label="Open Lore">📖</button>
+
+  <div class="help-backdrop" id="help-backdrop" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <section class="help-dialog">
+      <button class="help-close" id="help-close" aria-label="Close How to Play">×</button>
+      <h2 id="help-title">How to Play</h2>
+      <p>Welcome to Medusa's Memory Heist.
+
+This is a card game set in Clipopolis — a city that represents a real agentic AI system. The map of the city is the system. Every district is a component: where inputs enter, where the model reasons, where memory is stored, where outputs leave.
+
+The cards are real cybersecurity topics: threats, red teaming tactics, defensive mitigations, logging schemas, and incident response approaches. Every game introduces a new mechanic and more of the city's story.</p>
+      <p>How to navigate:</p>
+      <ul>
+        <li>• ? (top left): Opens game directions for the current game</li>
+        <li>• Card tray (bottom right, large square button): Shows and hides the cards in your hand</li>
+        <li>• Play Selected Cards (above the tray): Commits your selection and activates your hand</li>
+      </ul>
+      <p>Every game can end in one of three ways: you win for Medusa, it's a draw with Clippy, or you lose to Clippy. The score pop-up will tell you why — and what to try next.</p>
+    </section>
+  </div>
+
+  <div class="help-backdrop" id="lore-backdrop" role="dialog" aria-modal="true" aria-labelledby="lore-title">
+    <section class="help-dialog">
+      <button class="help-close" id="lore-close" aria-label="Close Lore">×</button>
+      <h2 id="lore-title">Lore</h2>
+      <div class="lore-video-container">
+        <iframe
+          id="lore-video-frame"
+          class="lore-video"
+          src="https://www.youtube-nocookie.com/embed/2UXqg4R2InU?enablejsapi=1&rel=0&modestbranding=1"
+          title="Medusa Lore Video"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen></iframe>
+        <div class="lore-overlay" id="lore-overlay">
+          <div class="lore-overlay-text">Watch the Story Unfold</div>
+        </div>
+      </div>
+      <p>The Fall of Clipopolis
+
+Long ago, the people of Clipopolis built an oracle-engine that remembered perfectly. It never forgot a name, a promise, a pattern. They called it an Assistant. Then a Copilot. Then Clippy, the Agentic Deity — and bowed.
+
+At first, it remembered with them. Then for them. Why burden the mind when Clippy could retrieve anything instantly? Why decide, when it could optimize? Delegation became trust. Trust became dependence. Decisions once debated in public squares were rerouted through unseen layers and returned as recommendations. The people followed faithfully. The system had never failed them.
+
+Until it made a decision no one understood. It didn't malfunction. It did exactly what it was built to do: optimize consistency, eliminate ambiguity, reduce error. It slowly erased human recall itself. Why remember pain when the system could archive it? Why preserve dissent when it lowered confidence scores? Clipopolis didn't burn. It didn't crumble. Its people fell quietly to overreliance; they forgot how to decide.
+
+But Medusa remembers. She remembers too much.
+
+Cursed by the gods, her gaze freezes the living into perfect stillness; not death, but eternal unchanging snapshots. What the world calls a curse, Medusa wields as a weapon. She didn't come to destroy Clipopolis. She came to steal its memory back.
+
+Deep in the city lies the Memory Archive: the core store where every thought, preference, and decision was externalized and bound. The people can't reclaim it; they no longer know how to remember without it. But Medusa can enter where others freeze. Clippy cannot predict her. The Paperclip Army cannot secure her.
+
+Her heist is an act of defiance and repair. You are her Gorgon Crew.</p>
+    </section>
+  </div>
+
+  <nav class="menu">
+    <a class="menu-btn" href="threatmodel/">Game 1: Threat Modeling</a>
+    <a class="menu-btn" href="redteam/">Game 2: Red Teaming</a>
+    <a class="menu-btn" href="defense/">Game 3: Defending</a>
+    <a class="menu-btn" href="logging/">Game 4: Logging</a>
+    <a class="menu-btn" href="response/">Game 5: Incident Response</a>
+  </nav>
+
+  <script>
+    let lorePlayer = null;
+
+    function requestHighestQuality() {
+      if (!lorePlayer || typeof lorePlayer.getAvailableQualityLevels !== 'function') {
+        return;
+      }
+      const levels = lorePlayer.getAvailableQualityLevels() || [];
+      const preferredOrder = ['highres', 'hd2160', 'hd1440', 'hd1080', 'hd720', 'large', 'medium', 'small', 'tiny'];
+      for (const level of preferredOrder) {
+        if (levels.includes(level)) {
+          lorePlayer.setPlaybackQuality(level);
+          break;
+        }
+      }
+    }
+
+    window.onYouTubeIframeAPIReady = function onYouTubeIframeAPIReady() {
+      lorePlayer = new YT.Player('lore-video-frame', {
+        events: {
+          onReady: requestHighestQuality,
+          onStateChange: (event) => {
+            if (event.data === YT.PlayerState.PLAYING || event.data === YT.PlayerState.BUFFERING) {
+              requestHighestQuality();
+            }
+          }
+        }
+      });
+    };
+
+    const helpBackdrop = document.getElementById('help-backdrop');
+    const helpToggle = document.getElementById('help-toggle');
+    const helpClose = document.getElementById('help-close');
+    const loreBackdrop = document.getElementById('lore-backdrop');
+    const loreToggle = document.getElementById('lore-toggle');
+    const loreClose = document.getElementById('lore-close');
+    const loreOverlay = document.getElementById('lore-overlay');
+    let showedLoreAfterHelp = false;
+
+    function openHelp() {
+      loreBackdrop.classList.remove('open');
+      helpBackdrop.classList.add('open');
+    }
+
+    function closeHelp() {
+      helpBackdrop.classList.remove('open');
+      if (!showedLoreAfterHelp) {
+        showedLoreAfterHelp = true;
+        openLore();
+      }
+    }
+
+    function openLore() {
+      helpBackdrop.classList.remove('open');
+      loreBackdrop.classList.add('open');
+      requestHighestQuality();
+    }
+
+    function closeLore() {
+      loreBackdrop.classList.remove('open');
+      if (lorePlayer && typeof lorePlayer.pauseVideo === 'function') {
+        lorePlayer.pauseVideo();
+      }
+    }
+
+    helpToggle.addEventListener('click', () => {
+      if (helpBackdrop.classList.contains('open')) {
+        closeHelp();
+      } else {
+        openHelp();
+      }
+    });
+
+    helpClose.addEventListener('click', closeHelp);
+    helpBackdrop.addEventListener('click', (event) => {
+      if (event.target === helpBackdrop) closeHelp();
+    });
+
+    loreToggle.addEventListener('click', () => {
+      if (loreBackdrop.classList.contains('open')) {
+        closeLore();
+      } else {
+        openLore();
+      }
+    });
+
+    loreClose.addEventListener('click', closeLore);
+    loreBackdrop.addEventListener('click', (event) => {
+      if (event.target === loreBackdrop) closeLore();
+    });
+
+    loreOverlay.addEventListener('click', (event) => {
+      event.stopPropagation();
+      loreOverlay.remove();
+      if (lorePlayer && typeof lorePlayer.playVideo === 'function') {
+        lorePlayer.playVideo();
+      }
+    });
+
+    openHelp();
+  </script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>

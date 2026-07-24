@@ -1,0 +1,29 @@
+{
+  "id": "timing",
+  "label": "Timing",
+  "button": {
+    "image": "../assets/button_rectangle.png",
+    "width": 375,
+    "height": 87
+  },
+  "cards": [
+    {
+      "type": "2_4_12",
+      "name_deck": "timing",
+      "points": "2",
+      "affected_zone": "zone-11"
+    },
+    {
+      "type": "2_4_13",
+      "name_deck": "timing",
+      "points": "2",
+      "affected_zone": "zone-8"
+    },
+    {
+      "type": "2_4_14",
+      "name_deck": "timing",
+      "points": "2",
+      "affected_zone": "zone-3"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "id": "hardening",
+  "label": "Hardening",
+  "button": {
+    "image": "../assets/button_rectangle.png",
+    "width": 375,
+    "height": 87,
+    "color": "#000"
+  },
+  "cards": [
+    {
+      "type": "5_9_35",
+      "name_deck": "hardening",
+      "points": "2",
+      "affected_zone": "zone-5"
+    },
+    {
+      "type": "5_9_36",
+      "name_deck": "hardening",
+      "points": "2",
+      "affected_zone": "zone-3"
+    },
+    {
+      "type": "5_9_37",
+      "name_deck": "hardening",
+      "points": "2",
+      "affected_zone": "zone-10"
+    }
+  ]
+}

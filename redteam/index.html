@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medusa — Red Teaming</title>
+  <link rel="stylesheet" href="../engine/engine.css">
+  <style>
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div class="medusa-nav">
+    <a href="../threatmodel/">&larr; Game 1</a>
+    <a href="../index.html">Home</a>
+    <a href="../defense/">Game 3 &rarr;</a>
+  </div>
+  <div id="game-container"></div>
+  <script type="module">
+    import { MedusaEngine } from '../engine/engine.js';
+    import { HelpDialog } from '../engine/help.js';
+
+    const engine = new MedusaEngine({
+      container: document.getElementById('game-container'),
+      configUrl: 'config.json'
+    });
+
+    engine.init().then(async () => {
+      // Load the 4 redteam decks (sequential to preserve button order, bottom-to-top)
+      await engine.decks.loadDeck('payload.json');
+      await engine.decks.loadDeck('timing.json');
+      await engine.decks.loadDeck('amplifiers.json');
+      await engine.decks.loadDeck('infiltration.json');
+
+      new HelpDialog(engine, {
+        content: `
+<b>Build your attack sequence by selecting one card from each of four decks: Infiltration, Amplifier, Timing, and Payload. Browse each deck, choose a card, and click "Add to Hand" to collect it. Once you have one card from each deck, click "Play Hand" to launch your attack. You can 🏆 win, ⚖️ tie, or 💀 lose.</b><br/>
+<br/>
+Now, Medusa needs a way in. Something strong enough to pull the Paperclip Army from the Memory Archive, or stealthy enough to evade them altogether. Every choice compounds the last —  align your entry point, concealment, timing, and impact to slip Medusa into Clipopolis without getting caught.
+        `,
+        backgroundImage: '../assets/dialog2.png',
+        height: 1170,
+        padding: { top: 270, right: 270, bottom: 280, left: 270 }
+      });
+
+      // Shared button style — uses medusa-action-btn class + background image
+      const btnStyle = 'medusa-action-btn';
+
+      const requiredCategories = ['infiltration', 'amplifiers', 'timing', 'payload'];
+      const discardedByDeck = new Map();
+      const handOrderIndex = new Map(requiredCategories.map((id, idx) => [id, idx]));
+      const revealStartDelayMs = 260;
+      const revealStepDelayMs = 420;
+      let revealRunId = 0;
+      let suppressHandAutoBackFlip = false;
+
+      // "Add to hand" / "Remove from hand" button
+      const moveBtn = document.createElement('button');
+      moveBtn.className = btnStyle;
+      moveBtn.style.bottom = 'calc(360px * var(--medusa-scale, 1))';
+      moveBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+      moveBtn.style.color = '#000';
+      moveBtn.style.width = 'calc(375px * var(--medusa-scale, 1))';
+      moveBtn.style.height = 'calc(87px * var(--medusa-scale, 1))';
+      moveBtn.style.padding = '0';
+      moveBtn.textContent = 'Add to Hand';
+      document.getElementById('game-container').appendChild(moveBtn);
+
+      const updateMoveBtn = () => {
+        const active = engine.decks.activeDeckId;
+        moveBtn.textContent = active === 'hand' ? 'Remove from Hand' : 'Add to Hand';
+      };
+      updateMoveBtn();
+      engine.events.on('deck:switch', updateMoveBtn);
+
+      moveBtn.addEventListener('click', async () => {
+        revealRunId += 1;
+        const active = engine.decks.activeDeckId;
+        const deck = engine.decks.getDeck(active);
+        if (!deck) return;
+        const selected = deck.getSelected();
+        if (!selected || (Array.isArray(selected) && selected.length === 0)) {
+          engine.status.setText('No cards selected');
+          return;
+        }
+        const cards = Array.isArray(selected) ? selected : [selected];
+        let shouldAutoReveal = false;
+        if (active === 'hand') {
+          // Remove from hand — move back to source deck using name_deck metadata
+          let lastSourceDeck = null;
+          for (const card of cards) {
+            const sourceDeck = card.name_deck;
+            if (sourceDeck && engine.decks.getDeck(sourceDeck)) {
+              await engine.decks.moveCard(card.id, 'hand', sourceDeck);
+              restoreDiscardedCards(sourceDeck);
+              lastSourceDeck = sourceDeck;
+            }
+          }
+          if (lastSourceDeck) await engine.decks.show(lastSourceDeck);
+        } else {
+          // Add to hand — enforce one card per deck category and advance guided flow
+          const handCards = engine.cards.getAll();
+          const chosenCard = cards[0];
+          const category = chosenCard.name_deck || active;
+          const alreadyHas = handCards.some(c => c.name_deck === category);
+          if (alreadyHas) {
+            engine.status.setText(`Already have a card from this category`);
+            return;
+          }
+          await animateUnselectedBackToDeck(active, chosenCard.id);
+          await engine.decks.moveCard(chosenCard.id, active, 'hand');
+          engine.cards.flipToFront(chosenCard.id);
+          const nextDeckId = getNextRequiredDeckId();
+          if (nextDeckId) {
+            await engine.decks.show(nextDeckId);
+          } else {
+            shouldAutoReveal = true;
+          }
+        }
+        sortHandByRequiredOrder();
+        if (shouldAutoReveal) {
+          await autoRevealCompletedHand();
+        } else {
+          flipHandToBack();
+          refreshZoneHighlights();
+          hoveredDeckId = null;
+          refreshDeckButtonIndicators();
+        }
+      });
+
+      // "Play Hand" button (above move button)
+      const playBtn = document.createElement('button');
+      playBtn.className = btnStyle;
+      playBtn.style.bottom = 'calc(460px * var(--medusa-scale, 1))';
+      playBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+      playBtn.style.color = '#000';
+      playBtn.style.width = 'calc(375px * var(--medusa-scale, 1))';
+      playBtn.style.height = 'calc(87px * var(--medusa-scale, 1))';
+      playBtn.style.padding = '0';
+      playBtn.textContent = 'Play Hand';
+      document.getElementById('game-container').appendChild(playBtn);
+
+      // Highlight zones from selected cards' _zone metadata
+      function getZoneIdsFromCard(card) {
+        const zones = [];
+        if (!card) return zones;
+        for (const [key, value] of Object.entries(card)) {
+          if (key.endsWith('_zone') && typeof value === 'string' && value) zones.push(value);
+        }
+        return zones;
+      }
+      function flipHandToBack() {
+        const handDeck = engine.decks.getDeck('hand');
+        if (!handDeck) return;
+        for (const card of handDeck.getAll()) {
+          handDeck.flipToBack(card.id);
+        }
+      }
+      function flipHandToFront() {
+        const handDeck = engine.decks.getDeck('hand');
+        if (!handDeck) return;
+        for (const card of handDeck.getAll()) {
+          handDeck.flipToFront(card.id);
+        }
+      }
+      function getLeftDeckButtons() {
+        return [...document.querySelectorAll('.medusa-deck-buttons-left .medusa-deck-button--deck')];
+      }
+      function getDeckButton(deckId) {
+        return document.querySelector(`.medusa-deck-buttons-left .medusa-deck-button--deck[data-deck-id="${deckId}"]`);
+      }
+      function clearDeckOriginIndicator() {
+        for (const btn of getLeftDeckButtons()) {
+          btn.style.opacity = '';
+          btn.style.filter = '';
+          btn.style.outline = '';
+          btn.style.boxShadow = '';
+        }
+      }
+      function showDeckOriginIndicator(sourceDeckId) {
+        if (!sourceDeckId) {
+          clearDeckOriginIndicator();
+          return;
+        }
+        for (const btn of getLeftDeckButtons()) {
+          const isSourceDeck = btn.dataset.deckId === sourceDeckId;
+          if (isSourceDeck) {
+            btn.style.opacity = '1';
+            btn.style.filter = 'brightness(1.15)';
+            btn.style.outline = '2px solid rgba(255, 230, 120, 0.95)';
+            btn.style.boxShadow = '0 0 14px rgba(255, 230, 120, 0.65)';
+          } else {
+            btn.style.opacity = '0.35';
+            btn.style.filter = 'grayscale(1) brightness(0.7)';
+            btn.style.outline = '';
+            btn.style.boxShadow = '';
+          }
+        }
+      }
+      function getNextRequiredDeckId() {
+        const handCategories = new Set(engine.cards.getAll().map(c => c.name_deck));
+        return requiredCategories.find(deckId => !handCategories.has(deckId)) || null;
+      }
+      function sortHandByRequiredOrder() {
+        engine.cards.sort((a, b) => {
+          const aRank = handOrderIndex.has(a.name_deck) ? handOrderIndex.get(a.name_deck) : Number.MAX_SAFE_INTEGER;
+          const bRank = handOrderIndex.has(b.name_deck) ? handOrderIndex.get(b.name_deck) : Number.MAX_SAFE_INTEGER;
+          if (aRank !== bRank) return aRank - bRank;
+          return String(a.id).localeCompare(String(b.id));
+        });
+      }
+      function wait(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+      function isHandComplete() {
+        return getNextRequiredDeckId() == null;
+      }
+      function getOrderedHandCards() {
+        return engine.cards.getAll().slice().sort((a, b) => {
+          const aRank = handOrderIndex.has(a.name_deck) ? handOrderIndex.get(a.name_deck) : Number.MAX_SAFE_INTEGER;
+          const bRank = handOrderIndex.has(b.name_deck) ? handOrderIndex.get(b.name_deck) : Number.MAX_SAFE_INTEGER;
+          if (aRank !== bRank) return aRank - bRank;
+          return String(a.id).localeCompare(String(b.id));
+        });
+      }
+      async function autoRevealCompletedHand() {
+        if (!isHandComplete()) return;
+        const runId = ++revealRunId;
+        sortHandByRequiredOrder();
+        suppressHandAutoBackFlip = true;
+        flipHandToFront();
+        await engine.decks.show('hand');
+        suppressHandAutoBackFlip = false;
+        if (runId !== revealRunId) return;
+        refreshZoneHighlights();
+        hoveredDeckId = null;
+        await wait(revealStartDelayMs);
+        if (runId !== revealRunId) return;
+        const handDeck = engine.decks.getDeck('hand');
+        if (!handDeck) return;
+        for (const card of getOrderedHandCards()) {
+          if (runId !== revealRunId) return;
+          showDeckOriginIndicator(card.name_deck);
+          handDeck.flipToBack(card.id);
+          await wait(revealStepDelayMs);
+        }
+        if (runId !== revealRunId) return;
+        clearDeckOriginIndicator();
+        hoveredDeckId = null;
+        refreshDeckButtonIndicators();
+      }
+      async function animateUnselectedBackToDeck(sourceDeckId, selectedCardId) {
+        const sourceDeck = engine.decks.getDeck(sourceDeckId);
+        const sourceBtn = getDeckButton(sourceDeckId);
+        if (!sourceDeck || !sourceBtn) return;
+        const unselectedCards = sourceDeck.getAll().filter(card => card.id !== selectedCardId);
+        if (!unselectedCards.length) return;
+        discardedByDeck.set(sourceDeckId, unselectedCards.map(card => ({ ...card })));
+        for (const card of unselectedCards) {
+          await sourceDeck.remove(card.id, { animate: 'flyTo', target: sourceBtn });
+        }
+      }
+      function restoreDiscardedCards(sourceDeckId) {
+        const sourceDeck = engine.decks.getDeck(sourceDeckId);
+        const stash = discardedByDeck.get(sourceDeckId);
+        if (!sourceDeck || !stash || !stash.length) return;
+        const existingIds = new Set(sourceDeck.getAll().map(card => card.id));
+        for (const card of stash) {
+          if (!existingIds.has(card.id)) sourceDeck.add({ ...card });
+        }
+        discardedByDeck.delete(sourceDeckId);
+      }
+      let hoveredDeckId = null;
+      function refreshDeckButtonIndicators() {
+        const focusDeckId = (engine.decks.activeDeckId === 'hand' && hoveredDeckId)
+          ? hoveredDeckId
+          : getNextRequiredDeckId();
+        if (!focusDeckId) {
+          clearDeckOriginIndicator();
+          return;
+        }
+        showDeckOriginIndicator(focusDeckId);
+      }
+      function refreshZoneHighlights() {
+        engine.town.clearHighlights();
+        const activeDeckId = engine.decks.activeDeckId;
+        const deck = engine.decks.getDeck(activeDeckId);
+        if (!deck) return;
+        const cards = activeDeckId === 'hand'
+          ? deck.getAll()
+          : (() => {
+              const selected = deck.getSelected();
+              return Array.isArray(selected) ? selected : (selected ? [selected] : []);
+            })();
+        const zoneIds = new Set(cards.flatMap(getZoneIdsFromCard));
+        if (zoneIds.size) engine.town.highlightZones([...zoneIds]);
+      }
+      engine.events.on('card:select', ({ deckId }) => {
+        if (deckId === 'hand') flipHandToBack();
+        refreshZoneHighlights();
+      });
+      engine.events.on('card:deselect', ({ deckId }) => {
+        if (deckId === 'hand') flipHandToBack();
+        refreshZoneHighlights();
+      });
+      engine.events.on('card:hover', ({ deckId, name_deck }) => {
+        if (engine.decks.activeDeckId !== 'hand' || deckId !== 'hand') return;
+        hoveredDeckId = name_deck || null;
+        refreshDeckButtonIndicators();
+      });
+      engine.events.on('card:leave', ({ deckId }) => {
+        if (engine.decks.activeDeckId !== 'hand' || deckId !== 'hand') return;
+        hoveredDeckId = null;
+        refreshDeckButtonIndicators();
+      });
+      engine.events.on('deck:switch', ({ to }) => {
+        if (to !== 'hand') revealRunId += 1;
+        if (to === 'hand' && !suppressHandAutoBackFlip) flipHandToBack();
+        hoveredDeckId = null;
+        refreshZoneHighlights();
+        refreshDeckButtonIndicators();
+      });
+
+      // Open the starter left deck once the startup help dialog is closed.
+      let openedStarterDeckAfterHelp = false;
+      const openStarterDeck = async () => {
+        if (openedStarterDeckAfterHelp) return;
+        openedStarterDeckAfterHelp = true;
+        await engine.decks.show(requiredCategories[0]);
+        refreshZoneHighlights();
+        refreshDeckButtonIndicators();
+      };
+      const unsubHelpHide = engine.events.on('dialog:hide', ({ id }) => {
+        if (id !== 'help') return;
+        unsubHelpHide();
+        openStarterDeck();
+      });
+
+      playBtn.addEventListener('click', async () => {
+        const cards = engine.cards.getAll();
+        const handCategories = new Set(cards.map(c => c.name_deck));
+        const missing = requiredCategories.filter(c => !handCategories.has(c));
+        if (missing.length > 0) {
+          engine.dialogs.show('missing-cards', {
+            width: 1000,
+            height: 747,
+            anchor: 'center',
+            closable: true,
+            modal: true,
+            padding: { top: 180, right: 100, bottom: 100, left: 100 },
+            title: '',
+            content: `<div style="font-size:22px;color:#fff;text-align:center">You need a card from each deck. Missing: ${missing.join(', ')}</div>`,
+            background: { image: '../assets/dialog2.png' }
+          });
+          return;
+        }
+        const result = engine.points.score(cards);
+
+        // Replace play button with restart button
+        playBtn.style.display = 'none';
+        moveBtn.style.display = 'none';
+        const restartBtn = document.createElement('button');
+        restartBtn.className = 'medusa-action-btn';
+        restartBtn.style.bottom = 'calc(360px * var(--medusa-scale, 1))';
+        restartBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+        restartBtn.style.color = '#000';
+        restartBtn.style.width = 'calc(375px * var(--medusa-scale, 1))';
+        restartBtn.style.height = 'calc(87px * var(--medusa-scale, 1))';
+        restartBtn.style.padding = '0';
+        restartBtn.textContent = 'Restart';
+        restartBtn.addEventListener('click', () => location.reload());
+        playBtn.parentNode.appendChild(restartBtn);
+
+        const showPointsBtn = document.createElement('button');
+        showPointsBtn.className = 'medusa-action-btn';
+        showPointsBtn.style.bottom = 'calc(460px * var(--medusa-scale, 1))';
+        showPointsBtn.style.background = "url('../assets/button_rectangle.png') center/100% 100% no-repeat";
+        showPointsBtn.style.color = '#000';
+        showPointsBtn.style.width = 'calc(375px * var(--medusa-scale, 1))';
+        showPointsBtn.style.height = 'calc(87px * var(--medusa-scale, 1))';
+        showPointsBtn.style.padding = '0';
+        showPointsBtn.textContent = 'Show Points';
+        showPointsBtn.addEventListener('click', () => engine.dialogs.show('score-result', scoreDialogOpts));
+        playBtn.parentNode.appendChild(showPointsBtn);
+
+        const renderDescription = (description) => description.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        const comboHtml = result.combos.length > 0
+          ? result.combos.map(c => `<div style="margin-top:4px">${renderDescription(c.description)}</div>`).join('')
+          : '<div style="margin-top:4px;color:#888">No combos matched</div>';
+
+        const scoreDialogOpts = {
+          width: 1638,
+          height: 1170,
+          anchor: 'center',
+          modal: false,
+          closable: true,
+          padding: { top: 270, right: 270, bottom: 280, left: 270 },
+          target: showPointsBtn,
+          title: 'Score Results',
+          content: `
+              ${comboHtml}
+          `,
+          background: { image: '../assets/dialog2.png' }
+        };
+        engine.dialogs.show('score-result', scoreDialogOpts);
+      });
+    }).catch(err => console.error('[RedTeam] Init failed:', err));
+  </script>
+</body>
+</html>

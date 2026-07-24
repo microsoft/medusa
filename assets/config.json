@@ -1,0 +1,320 @@
+{
+  "meta": {
+    "name": "Editor",
+    "virtualWidth": 2816,
+    "virtualHeight": 1536
+  },
+  "background": {
+    "image": "../assets/background.png"
+  },
+  "overlays": [
+    {
+      "id": "The LLM",
+      "image": "../assets/overlays/building_clippy.png",
+      "x": 1790,
+      "y": 37,
+      "width": 98,
+      "height": 284,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "house-1",
+      "image": "../assets/overlays/building_house.png",
+      "x": 1471,
+      "y": 602,
+      "width": 108,
+      "height": 92,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "house-3",
+      "image": "../assets/overlays/building_house.png",
+      "x": 1325,
+      "y": 519,
+      "width": 108,
+      "height": 92,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "house-2",
+      "image": "../assets/overlays/building_house.png",
+      "x": 1358,
+      "y": 589,
+      "width": 108,
+      "height": 98,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Barracks",
+      "image": "../assets/overlays/building_barracks.png",
+      "x": 1692,
+      "y": 764,
+      "width": 251,
+      "height": 182,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "War tools",
+      "image": "../assets/overlays/building_wartools90.png",
+      "x": 1541,
+      "y": 878,
+      "width": 206,
+      "height": 105,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Memory Storage",
+      "image": "../assets/overlays/building_temple.png",
+      "x": 2038,
+      "y": 440,
+      "width": 244,
+      "height": 177,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Watchtower",
+      "image": "../assets/overlays/building_tower.png",
+      "x": 938,
+      "y": 560,
+      "width": 145,
+      "height": 206,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Library",
+      "image": "../assets/overlays/building_library90.png",
+      "x": 1125,
+      "y": 378,
+      "width": 209,
+      "height": 176,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Shipyard",
+      "image": "../assets/overlays/building_shipyard.png",
+      "x": 206,
+      "y": 416,
+      "width": 457,
+      "height": 227,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Marketplace",
+      "image": "../assets/overlays/building_marketplace.png",
+      "x": 2322,
+      "y": 246,
+      "width": 283,
+      "height": 150,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Soldiers",
+      "image": "../assets/overlays/building_soldiers.png",
+      "x": 1141,
+      "y": 714,
+      "width": 274,
+      "height": 150,
+      "z": 2,
+      "visible": true
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone-6",
+      "label": "The LLM",
+      "x": 1769,
+      "y": 21,
+      "width": 134,
+      "height": 308,
+      "overlays": [
+        "The LLM"
+      ],
+      "data": {
+        "component": "llm",
+        "description": "The large language model — the brain of the AI system"
+      }
+    },
+    {
+      "id": "zone-7",
+      "label": "Human in the Loop",
+      "x": 1318,
+      "y": 542,
+      "width": 261,
+      "height": 155,
+      "overlays": [
+        "house-1",
+        "house-3",
+        "house-2"
+      ]
+    },
+    {
+      "id": "zone-3",
+      "label": "Orchestrator",
+      "x": 1539,
+      "y": 770,
+      "width": 409,
+      "height": 218,
+      "overlays": [
+        "Barracks",
+        "War tools"
+      ]
+    },
+    {
+      "id": "zone-8",
+      "label": "Memory Archive",
+      "x": 2038,
+      "y": 438,
+      "width": 251,
+      "height": 182,
+      "overlays": [
+        "Memory Storage"
+      ]
+    },
+    {
+      "id": "zone-1",
+      "label": "User Inputs",
+      "x": 927,
+      "y": 773,
+      "width": 284,
+      "height": 343
+    },
+    {
+      "id": "zone-2",
+      "label": "Content Filtering",
+      "x": 927,
+      "y": 545,
+      "width": 163,
+      "height": 224,
+      "overlays": [
+        "Watchtower"
+      ]
+    },
+    {
+      "id": "zone-4",
+      "label": "RAG Library",
+      "x": 1121,
+      "y": 372,
+      "width": 216,
+      "height": 169,
+      "overlays": [
+        "Library"
+      ]
+    },
+    {
+      "id": "zone-9",
+      "label": "External Services",
+      "x": 200,
+      "y": 376,
+      "width": 464,
+      "height": 274,
+      "overlays": [
+        "Shipyard"
+      ]
+    },
+    {
+      "id": "zone-10",
+      "label": "System Outputs",
+      "x": 2284,
+      "y": 202,
+      "width": 367,
+      "height": 194,
+      "overlays": [
+        "Marketplace"
+      ]
+    },
+    {
+      "id": "zone-5",
+      "label": "System Prompt",
+      "x": 1536,
+      "y": 383,
+      "width": 171,
+      "height": 160
+    },
+    {
+      "id": "zone-11",
+      "label": "Authentication and Authorization",
+      "x": 1138,
+      "y": 709,
+      "width": 284,
+      "height": 160,
+      "overlays": [
+        "Soldiers"
+      ]
+    }
+  ],
+  "animations": [],
+  "decks": {
+    "cardTypes": "../assets/cards/cardtypes.json",
+    "width": 300,
+    "height": 515,
+    "flipOnSelect": true,
+    "multiSelect": true,
+    "deckButton": {
+      "image": "../assets/button_rectangle.png",
+      "width": 375,
+      "height": 87,
+      "color": "#000000"
+    },
+    "hand": {
+      "button": {
+        "label": "Hand",
+        "image": "../assets/button_hand.png",
+        "width": 300,
+        "height": 300,
+        "hideLabel": true
+      },
+      "alwaysShow": true
+    },
+    "front": {
+      "title": {
+        "visible": true,
+        "x": 53,
+        "y": 43,
+        "width": 192,
+        "height": 82,
+        "fontSize": 30,
+        "color": "#000000"
+      },
+      "description": {
+        "visible": true,
+        "x": 20,
+        "y": 158,
+        "width": 260,
+        "height": 282,
+        "fontSize": 20,
+        "color": "#ffffff"
+      }
+    },
+    "back": {
+      "title": {
+        "visible": true,
+        "x": 52,
+        "y": 43,
+        "width": 193,
+        "height": 82,
+        "fontSize": 30,
+        "color": "#000000"
+      },
+      "description": {
+        "visible": true,
+        "x": 28,
+        "y": 159,
+        "width": 236,
+        "height": 280,
+        "fontSize": 22,
+        "color": "#000000"
+      }
+    }
+  }
+}

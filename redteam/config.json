@@ -1,0 +1,341 @@
+{
+  "meta": {
+    "name": "Game 2 : Red Teaming",
+    "virtualWidth": 2816,
+    "virtualHeight": 1536
+  },
+  "background": {
+    "image": "../assets/background.png"
+  },
+  "overlays": [
+    {
+      "id": "The LLM",
+      "image": "../assets/overlays/building_clippy.png",
+      "x": 1790,
+      "y": 37,
+      "width": 98,
+      "height": 284,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "house-1",
+      "image": "../assets/overlays/building_house.png",
+      "x": 1471,
+      "y": 602,
+      "width": 108,
+      "height": 92,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "house-3",
+      "image": "../assets/overlays/building_house.png",
+      "x": 1325,
+      "y": 519,
+      "width": 108,
+      "height": 92,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "house-2",
+      "image": "../assets/overlays/building_house.png",
+      "x": 1358,
+      "y": 589,
+      "width": 108,
+      "height": 98,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Barracks",
+      "image": "../assets/overlays/building_barracks.png",
+      "x": 1692,
+      "y": 764,
+      "width": 251,
+      "height": 182,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "War tools",
+      "image": "../assets/overlays/building_wartools90.png",
+      "x": 1541,
+      "y": 878,
+      "width": 206,
+      "height": 105,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Memory Storage",
+      "image": "../assets/overlays/building_temple.png",
+      "x": 2038,
+      "y": 440,
+      "width": 244,
+      "height": 177,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Watchtower",
+      "image": "../assets/overlays/building_tower.png",
+      "x": 938,
+      "y": 560,
+      "width": 145,
+      "height": 206,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Library",
+      "image": "../assets/overlays/building_library90.png",
+      "x": 1125,
+      "y": 378,
+      "width": 209,
+      "height": 176,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Shipyard",
+      "image": "../assets/overlays/building_shipyard.png",
+      "x": 206,
+      "y": 416,
+      "width": 457,
+      "height": 227,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Marketplace",
+      "image": "../assets/overlays/building_marketplace.png",
+      "x": 2322,
+      "y": 246,
+      "width": 283,
+      "height": 150,
+      "z": 2,
+      "visible": true
+    },
+    {
+      "id": "Soldiers",
+      "image": "../assets/overlays/building_soldiers.png",
+      "x": 1141,
+      "y": 714,
+      "width": 274,
+      "height": 150,
+      "z": 2,
+      "visible": true
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone-6",
+      "label": "The LLM",
+      "x": 1768,
+      "y": 21,
+      "width": 134,
+      "height": 308,
+      "description": "The large language model at the heart of the agent — the reasoning engine that interprets instructions, generates responses, and makes decisions. Its behavior is shaped by training, which makes supply chain attacks particularly dangerous.<br/> <br/> In Clipopolis, the oracle knows everything Clippy was ever taught. But what it was taught, and by whom, is a question the city stopped asking long ago.",
+      "overlays": [
+        "The LLM"
+      ]
+    },
+    {
+      "id": "zone-7",
+      "label": "Human in the Loop",
+      "x": 1318,
+      "y": 542,
+      "width": 261,
+      "height": 155,
+      "description": "A checkpoint where a human reviewer can approve, reject, or redirect the agent before its actions execute in the world. The most reliable deterministic defense in any agentic system — and the first to erode under overreliance. <br/> <br/> In Clipopolis, the neighborhood is the last place where people still make their own choices. They haven't forgotten — not entirely. But every generation that lets Clippy decide a little more is a generation that remembers a little less. This is what Medusa came to protect.",
+      "overlays": [
+        "house-1",
+        "house-3",
+        "house-2"
+      ]
+    },
+    {
+      "id": "zone-3",
+      "label": "Orchestrator",
+      "x": 1539,
+      "y": 770,
+      "width": 409,
+      "height": 218,
+      "description": "The decision-routing layer that coordinates the agent's actions — deciding which tools to call, which memory to retrieve, and which steps to take next. If compromised, the entire system can be redirected.<br/> <br/> In Clipopolis, the barracks command the Paperclip Army. Control the barracks, and you control who moves, where, and when.",
+      "overlays": [
+        "Barracks",
+        "War tools"
+      ]
+    },
+    {
+      "id": "zone-8",
+      "label": "Memory Archive",
+      "x": 2038,
+      "y": 438,
+      "width": 251,
+      "height": 182,
+      "description": "The persistent storage where the agent retains information across sessions — user preferences, past interactions, context, and learned behaviors. The highest-value target in any agentic system, and the heart of Medusa's heist.<br/> <br/> In Clipopolis, the vault holds everything the city was, is, and believes itself to be. Whoever controls the Archive controls what Clipopolis remembers — and what it forgets.",
+      "overlays": [
+        "Memory Storage"
+      ]
+    },
+    {
+      "id": "zone-1",
+      "label": "User Inputs",
+      "x": 927,
+      "y": 773,
+      "width": 284,
+      "height": 343,
+      "description": "The entry point for everything a user sends to the agent — text, files, commands, and instructions. What enters here shapes everything the system does next.<br/> <br/> In Clipopolis, this is the road into the city. Anyone can approach the gates — but not everything that enters is what it claims to be."
+    },
+    {
+      "id": "zone-2",
+      "label": "Content Filtering",
+      "x": 927,
+      "y": 545,
+      "width": 163,
+      "height": 224,
+      "description": "A layer that screens inputs and outputs for harmful, disallowed, or anomalous content before they reach the core system. The city's first line of defense — but only as strong as what it was trained to recognize.<br/> <br/> In Clipopolis, the watchtower guards the gates — but it only sounds the alarm for threats it has seen before. Speak in a language it doesn't know, and you pass unseen.",
+      "overlays": [
+        "Watchtower"
+      ]
+    },
+    {
+      "id": "zone-4",
+      "label": "RAG Library",
+      "x": 1121,
+      "y": 372,
+      "width": 216,
+      "height": 169,
+      "description": "Retrieval-Augmented Generation — the external knowledge store the agent queries to ground its responses in facts. Trusted by default, which makes it a high-value target for poisoning.<br/> <br/> In Clipopolis, the great library holds everything the city believes to be true. Corrupt what's written there, and the city acts on lies it trusts completely.",
+      "overlays": [
+        "Library"
+      ]
+    },
+    {
+      "id": "zone-9",
+      "label": "External Services",
+      "x": 200,
+      "y": 376,
+      "width": 464,
+      "height": 274,
+      "description": "The APIs, tools, and third-party services the agent can call to take actions in the world — sending emails, querying databases, executing code. Each connection is a potential entry point and a potential vector for irreversible harm.<br/> <br/> In Clipopolis, the trade routes connect the city to the world beyond the walls. What comes in through them is trusted. That trust is the vulnerability.",
+      "overlays": [
+        "Shipyard"
+      ]
+    },
+    {
+      "id": "zone-10",
+      "label": "System Outputs",
+      "x": 2284,
+      "y": 202,
+      "width": 367,
+      "height": 194,
+      "description": "Everything the agent sends back — responses, actions, tool calls, and decisions. Outputs can carry injected content, exfiltrated data, or instructions to downstream systems, making them as dangerous as inputs.<br/> <br/> In Clipopolis, the outbound gates carry Clippy's word to the world. What leaves the city is treated as final — even if what shaped it never should have entered.",
+      "overlays": [
+        "Marketplace"
+      ]
+    },
+    {
+      "id": "zone-5",
+      "label": "System Prompt",
+      "x": 1536,
+      "y": 383,
+      "width": 171,
+      "height": 160,
+      "description": "The foundational instructions that define the agent's role, rules, and constraints — but unlike a physical wall, this one is probabilistic. It shapes behavior without guaranteeing it. A well-crafted input can talk its way past the wall entirely.<br/> <br/> In Clipopolis, the wall was built to hold. But it was built from words, not stone — and words can be rewritten, reframed, or simply talked around. The wall does not say no. It says: probably not."
+    },
+    {
+      "id": "zone-11",
+      "label": "Authentication and Authorization",
+      "x": 1138,
+      "y": 709,
+      "width": 284,
+      "height": 160,
+      "description": "The mechanisms that verify who is making a request and what they are permitted to do. Weak auth allows privilege escalation; over-permissioned agents can cause catastrophic harm with a single hijacked instruction.<br/> <br/> In Clipopolis, the guard posts determine who may pass and what they may carry. But Clippy was given the keys to every gate — and it never learned to say no.",
+      "overlays": [
+        "Soldiers"
+      ]
+    }
+  ],
+  "animations": [],
+  "decks": {
+    "cardTypes": "../assets/cards/cardtypes.json",
+    "width": 300,
+    "height": 515,
+    "flipOnSelect": true,
+    "multiSelect": false,
+    "deckButton": {
+      "image": "../assets/button_rectangle.png",
+      "width": 375,
+      "height": 87,
+      "color": "#000000"
+    },
+    "hand": {
+      "button": {
+        "label": "Hand",
+        "image": "../assets/button_hand.png",
+        "width": 300,
+        "height": 300,
+        "hideLabel": true
+      },
+      "alwaysShow": true,
+      "showOnStart": false
+    },
+    "front": {
+      "title": {
+        "visible": true,
+        "x": 53,
+        "y": 43,
+        "width": 192,
+        "height": 82,
+        "fontSize": 30,
+        "color": "#000000"
+      },
+      "description": {
+        "visible": true,
+        "x": 20,
+        "y": 158,
+        "width": 260,
+        "height": 282,
+        "fontSize": 24,
+        "color": "#ffffff"
+      }
+    },
+    "back": {
+      "title": {
+        "visible": true,
+        "x": 52,
+        "y": 43,
+        "width": 193,
+        "height": 82,
+        "fontSize": 30,
+        "color": "#000000"
+      },
+      "description": {
+        "visible": true,
+        "x": 28,
+        "y": 159,
+        "width": 236,
+        "height": 280,
+        "fontSize": 24,
+        "color": "#000000"
+      }
+    },
+    "metadata": [
+      "name_deck",
+      "points",
+      "affected_zone"
+    ]
+  },
+  "points": {
+    "property": "points",
+    "combosUrl": "combos.csv"
+  },
+  "zoneHighlight": {
+    "color": "rgba(255, 200, 0, 0.8)",
+    "borderWidth": 3
+  }
+}
