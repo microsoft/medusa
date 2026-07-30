@@ -1,0 +1,2359 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft AeGIS — AI Safety &amp; Security</title>
+<!-- Segoe UI is a Windows system font; no external import needed -->
+<style>
+/* ══════════════════════════════════════════════════════
+   DESIGN TOKENS
+══════════════════════════════════════════════════════ */
+:root {
+  --green:    #8de971;
+  --teal:     #49c5b1;
+  --navy:     #225b62;
+  --sky:      #8dc8e8;
+  --charcoal: #232323;
+  --blue:     #0078d4;
+  --dark:     #111414;
+  --mid:      #1a2426;
+  --surface:  rgba(255,255,255,0.04);
+  --stroke:   rgba(255,255,255,0.09);
+  --text:     rgba(255,255,255,0.92);
+  --muted:    rgba(255,255,255,0.48);
+  --font:     'Segoe UI', system-ui, sans-serif;
+  --radius:   8px;
+  --nav-h:    58px;
+}
+
+/* ══════════════════════════════════════════════════════
+   RESET + BASE
+══════════════════════════════════════════════════════ */
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+body { background:var(--dark); color:var(--text); font-family:var(--font); overflow-x:hidden; -webkit-font-smoothing:antialiased; line-height:1.6; }
+img { display:block; max-width:100%; }
+a { color:var(--teal); text-decoration:none; transition:opacity .15s; }
+a:hover { opacity:.8; }
+button { font-family:var(--font); cursor:pointer; }
+
+/* ══════════════════════════════════════════════════════
+   TOP NAV
+══════════════════════════════════════════════════════ */
+#site-nav {
+  position:fixed; top:0; left:0; right:0; z-index:200;
+  height:var(--nav-h);
+  background:rgba(17,20,20,0.92);
+  backdrop-filter:blur(18px);
+  border-bottom:1px solid var(--stroke);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 32px;
+}
+.nav-logo { display:flex; align-items:center; }
+.nav-logo img { height:30px; width:auto; }
+.nav-tabs { display:flex; gap:4px; }
+.nav-tab {
+  padding:8px 20px; border-radius:6px; border:none;
+  background:transparent; color:var(--muted);
+  font-size:13px; font-weight:600; letter-spacing:.02em;
+  transition:color .2s, background .2s;
+  position:relative;
+}
+.nav-tab:hover { color:var(--text); }
+.nav-tab.active {
+  color:var(--green);
+  background:rgba(141,233,113,.08);
+}
+.nav-tab.active::after {
+  content:''; position:absolute; bottom:-1px; left:16px; right:16px;
+  height:2px; background:var(--green); border-radius:2px 2px 0 0;
+}
+.nav-tab.active[data-page="heist"] {
+  color:var(--teal);
+  background:rgba(73,197,177,.1);
+}
+.nav-tab.active[data-page="heist"]::after { background:var(--teal); }
+.nav-tab:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
+.nav-cta {
+  padding:7px 18px; border-radius:5px;
+  background:var(--green); color:var(--charcoal);
+  font-size:12px; font-weight:700; border:none;
+  transition:opacity .2s;
+}
+.nav-cta:hover { opacity:.85; }
+/* Mobile hamburger */
+.nav-burger { display:none; background:none; border:none; color:var(--text); padding:6px; }
+.nav-mobile-menu {
+  display:none; position:fixed; top:var(--nav-h); left:0; right:0;
+  background:rgba(17,20,20,.98); border-bottom:1px solid var(--stroke);
+  padding:12px 16px; flex-direction:column; gap:4px; z-index:199;
+}
+.nav-mobile-menu.open { display:flex; }
+.nav-mobile-tab {
+  padding:12px 16px; border-radius:6px; border:none;
+  background:transparent; color:var(--muted);
+  font-size:14px; font-weight:600; text-align:left;
+  transition:color .2s, background .2s;
+}
+.nav-mobile-tab.active { color:var(--green); background:rgba(141,233,113,.07); }
+.nav-mobile-tab.active[data-page="heist"] { color:var(--teal); background:rgba(73,197,177,.1); }
+
+/* Back to top */
+.back-to-top-btn {
+  position:fixed; right:24px; bottom:24px; z-index:150;
+  width:44px; height:44px; border-radius:50%; border:1px solid var(--stroke);
+  background:rgba(17,20,20,.92); backdrop-filter:blur(18px); color:var(--text);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:translateY(8px); pointer-events:none;
+  transition:opacity .2s, transform .2s, border-color .2s, background .2s;
+}
+.back-to-top-btn.visible { opacity:1; transform:translateY(0); pointer-events:auto; }
+.back-to-top-btn:hover { border-color:var(--teal); background:rgba(73,197,177,.12); }
+.back-to-top-btn:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
+
+/* ══════════════════════════════════════════════════════
+   PAGE SHELL
+══════════════════════════════════════════════════════ */
+.page { display:none; padding-top:var(--nav-h); min-height:100vh; }
+.page.active { display:block; }
+#section-hero, #section-maps, #section-architecture, #section-games, #section-about-name { scroll-margin-top: var(--nav-h); }
+
+/* ══════════════════════════════════════════════════════
+   SHARED COMPONENTS
+══════════════════════════════════════════════════════ */
+.section-wrap { max-width:1120px; margin:0 auto; padding:80px 40px; }
+.section-eyebrow { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--teal); margin-bottom:10px; }
+.section-eyebrow .grad { background:linear-gradient(135deg,var(--green),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.section-h2 { font-size:clamp(24px,3vw,40px); font-weight:600; letter-spacing:-.02em; line-height:1.1; margin-bottom:12px; text-wrap:balance; }
+.section-h2 .acc { color:var(--green); }
+.section-h2 .grad { background:linear-gradient(135deg,var(--green),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.section-sub { font-size:15px; color:var(--muted); line-height:1.65; max-width:560px; text-wrap:pretty; }
+.divider { border:none; border-top:1px solid var(--stroke); margin:0; }
+
+.btn-primary {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:11px 24px; border-radius:5px;
+  background:var(--green); color:var(--charcoal);
+  font-size:13px; font-weight:700; font-family:var(--font); border:none;
+  transition:opacity .15s, transform .15s;
+}
+.btn-primary:hover { opacity:.87; transform:translateY(-1px); }
+.btn-secondary {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:11px 24px; border-radius:5px;
+  background:var(--teal); color:var(--charcoal);
+  font-size:13px; font-weight:700; font-family:var(--font); border:none;
+  transition:opacity .15s, transform .15s;
+}
+.btn-secondary:hover { opacity:.87; transform:translateY(-1px); }
+.btn-outline {
+  display:inline-flex; align-items:center; gap:8px;
+  padding:11px 24px; border-radius:5px;
+  background:transparent; color:var(--teal);
+  font-size:13px; font-weight:600; font-family:var(--font);
+  border:1px solid rgba(73,197,177,.35);
+  transition:border-color .2s, background .2s;
+}
+.btn-outline:hover { border-color:var(--teal); background:rgba(73,197,177,.07); }
+
+/* About body */
+.about-text { font-size:15px; color:var(--muted); line-height:1.75; }
+.about-text p + p { margin-top:16px; }
+.story-text, .story-text p { color:var(--text); }
+.story-copy {
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+.story-copy p + p { margin-top:0; }
+.story-signature {
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-top:4px;
+}
+.story-signature p {
+  font-style:italic;
+  color:var(--text);
+}
+.story-signature-logo {
+  width:min(80px, 20%);
+  filter:drop-shadow(0 0 24px rgba(141,233,113,.2));
+}
+
+/* ══════════════════════════════════════════════════════
+   PAGE 2: MEMORY HEIST
+══════════════════════════════════════════════════════ */
+.heist-hero {
+  display:grid; grid-template-columns:1fr 1fr; gap:48px;
+  align-items:center; padding:80px 40px 60px;
+  max-width:1120px; margin:0 auto;
+}
+.heist-hero-eyebrow { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--green); margin-bottom:10px; }
+.heist-hero-title { font-size:clamp(28px,4vw,52px); font-weight:600; letter-spacing:-.025em; line-height:1.1; margin-bottom:12px; }
+.heist-hero-title span { background:linear-gradient(135deg,var(--green),var(--teal)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.heist-hero-oneliner { font-size:15px; color:var(--muted); margin-bottom:24px; line-height:1.6; }
+.heist-hero-credit { display:block; margin-top:12px; color:var(--muted); font-size:15px; line-height:1.6; }
+.heist-hero-credit a { color:var(--teal); }
+.heist-hero-actions { display:flex; gap:10px; flex-wrap:wrap; }
+.heist-video-wrap { border-radius:12px; overflow:hidden; border:1px solid var(--stroke); background:#000; position:relative; aspect-ratio:16/9; }
+.heist-video-wrap iframe { position:absolute; inset:0; width:100%; height:100%; border:none; }
+.heist-video-overlay {
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:none;
+  width:100%;
+  background:linear-gradient(145deg, rgba(5,16,18,.82), rgba(10,22,26,.9));
+  color:var(--text);
+  cursor:pointer;
+  transition:opacity .2s ease, background .2s ease;
+}
+.heist-video-overlay:hover { background:linear-gradient(145deg, rgba(5,16,18,.9), rgba(10,22,26,.96)); }
+.heist-video-overlay.hidden { opacity:0; pointer-events:none; }
+.heist-video-overlay-inner {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:12px 18px;
+  border:1px solid rgba(73,197,177,.38);
+  border-radius:999px;
+  background:rgba(73,197,177,.12);
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+}
+.heist-video-overlay-inner svg { width:16px; height:16px; }
+
+/* Lore */
+.lore-section { background:linear-gradient(180deg,#0a1610,#0b1520); }
+.lore-text { font-size:15px; color:rgba(255,255,255,.65); line-height:1.85; white-space:pre-line; }
+.lore-text strong, .lore-first-line { color:var(--text); font-size:18px; font-weight:600; display:block; margin-bottom:20px; }
+
+/* Map */
+.map-section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+.carousel-controls { display:flex; gap:8px; align-items:center; }
+.carousel-btn {
+  width:36px; height:36px; border-radius:8px; border:1px solid var(--stroke);
+  background:var(--surface); color:var(--text); font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+  transition:border-color .2s, background .2s;
+}
+.carousel-btn:hover { border-color:var(--teal); background:rgba(73,197,177,.08); }
+.carousel-btn:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
+.panel-indicator { display:flex; gap:6px; }
+.panel-dot { width:7px; height:7px; border-radius:50%; background:var(--stroke); transition:background .2s; }
+.panel-dot.active { background:var(--green); }
+
+/* Two-panel carousel */
+.map-carousel { overflow:hidden; border-radius:12px; height:600px; }
+.map-carousel-track { display:flex; transition:transform .4s cubic-bezier(.4,0,.2,1); height:100%; }
+.map-panel { min-width:100%; height:100%; display:flex; flex-direction:column; }
+.map-img-wrap { position:relative; border-radius:12px; overflow:hidden; background:#0d1c20; border:1px solid var(--stroke); }
+.map-placeholder { width:100%; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; background:repeating-linear-gradient(45deg,rgba(255,255,255,.02),rgba(255,255,255,.02) 3px,transparent 3px,transparent 14px); color:rgba(255,255,255,.15); font-size:13px; font-family:monospace; letter-spacing:.05em; }
+.map-hotspots { position:absolute; inset:0; }
+.hotspot {
+  position:absolute; border-radius:4px;
+  background:rgba(141,233,113,.07); border:1px solid rgba(141,233,113,.25);
+  cursor:pointer; transition:background .2s, border-color .2s;
+}
+.hotspot:hover, .hotspot:focus { background:rgba(141,233,113,.18); border-color:var(--green); outline:none; }
+.hotspot:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
+.hotspot-label {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  font-size:9px; font-weight:700; color:#ffffff; text-align:center;
+  white-space:nowrap; letter-spacing:.04em; pointer-events:none;
+  text-shadow:0 1px 4px rgba(0,0,0,.8);
+}
+.hotspot-tooltip {
+  position:absolute; z-index:50; width:240px;
+  background:#112020; border:1px solid var(--teal); border-radius:8px;
+  padding:12px 14px; font-size:12px; color:var(--text); line-height:1.55;
+  pointer-events:none; opacity:0; transition:opacity .15s;
+  box-shadow:0 8px 32px rgba(0,0,0,.6); white-space:pre-line;
+}
+.hotspot-tooltip.visible { opacity:1; }
+.hotspot-tooltip strong { color:var(--green); font-size:12px; display:block; margin-bottom:6px; }
+
+/* Diagram interactive styles */
+.diagram-img-wrap {
+  position:relative;
+  border-radius:12px;
+  overflow:hidden;
+  flex:1;
+  display:block;
+  width:100%;
+  min-width:0;
+  min-height:0;
+}
+.diagram-img-wrap > img {
+  position:relative;
+  z-index:1;
+  width:auto;
+  height:auto;
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+.diagram-hotspots { position:absolute; inset:0; z-index:2; }
+.diagram-hotspot {
+  position:absolute;
+  background:transparent;
+  border:none;
+  cursor:pointer;
+}
+.diagram-hotspot:hover, .diagram-hotspot:focus {
+  outline:none;
+}
+.diagram-hotspot:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
+.diagram-arrow-zone {
+  position:absolute;
+  background:transparent;
+  border:none;
+  cursor:pointer;
+}
+.diagram-arrow-zone:hover, .diagram-arrow-zone:focus {
+  outline:none;
+}
+.diagram-hotspot-tooltip {
+  position:absolute; z-index:50; width:260px;
+  background:#0e1e1e; border:1px solid var(--teal); border-radius:8px;
+  padding:14px 16px; font-size:12px; color:var(--text); line-height:1.6;
+  pointer-events:none; opacity:0; transition:opacity .15s;
+  box-shadow:0 8px 32px rgba(0,0,0,.7); white-space:pre-line;
+}
+.diagram-hotspot-tooltip.visible { opacity:1; }
+.diagram-hotspot-tooltip strong { color:var(--teal); font-size:12px; display:block; margin-bottom:8px; font-weight:700; }
+.diagram-hotspot-tooltip em { display:block; color:rgba(255,255,255,.5); font-style:italic; font-size:11px; margin-bottom:6px; }
+
+/* Building bento grid */
+/* Interactive bento grid */
+.bento-interactive { display:flex; flex-direction:column; gap:10px; padding:24px; }
+.bento-wrap1 { display:flex; flex-direction:column; gap:10px; }
+.bento-main-row { display:grid; grid-template-columns:2fr 1fr; gap:10px; }
+.bento-right-stack { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.bento-bottom-3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.bento-bottom-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+/* Featured card */
+.bento-featured-card {
+  border-radius:12px;
+  border:1px solid rgba(73,197,177,.5);
+  border-left:3px solid var(--teal);
+  background:linear-gradient(160deg,#0d2a30,#060d14);
+  padding:28px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  min-height:260px;
+  position:relative;
+  overflow:hidden;
+}
+.bento-featured-card::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse 80% 100% at 0% 0%, rgba(73,197,177,.12), transparent 65%);
+  pointer-events:none;
+}
+/* Shared sub-elements */
+.bento-card-top { display:flex; align-items:center; gap:10px; }
+.bento-card-icon {
+  flex-shrink:0;
+  border-radius:8px;
+  background:rgba(73,197,177,.15); border:1px solid rgba(73,197,177,.3);
+  display:flex; align-items:center; justify-content:center;
+}
+.bento-card-icon img { width:100%; height:100%; object-fit:contain; }
+.bento-featured-card .bento-card-icon { width:36px; height:36px; font-size:18px; }
+.bento-featured-card .bento-card-name { font-size:19px; font-weight:700; color:var(--text); line-height:1.2; }
+.bento-featured-card .bento-card-blurb { font-size:14px; color:rgba(255,255,255,.65); line-height:1.75; white-space:pre-line; }
+.bento-focused-label {
+  position:absolute; top:14px; right:14px;
+  font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--teal); background:rgba(73,197,177,.12); border:1px solid rgba(73,197,177,.28);
+  padding:3px 8px; border-radius:10px;
+}
+/* Small cards */
+.bento-small-card {
+  border-radius:10px;
+  border:1px solid var(--stroke);
+  border-left:3px solid var(--teal);
+  background:var(--surface);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  cursor:pointer;
+  transition:border-color .2s, background .2s, transform .15s, box-shadow .15s;
+  position:relative;
+  overflow:hidden;
+}
+.bento-small-card::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse 80% 100% at 0% 0%, rgba(73,197,177,.05), transparent 65%);
+  pointer-events:none;
+}
+.bento-small-card:hover { border-color:var(--teal); background:rgba(73,197,177,.07); transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.4); }
+.bento-small-card.active { border-color:var(--teal); background:rgba(73,197,177,.1); box-shadow:0 0 0 1px rgba(73,197,177,.28); }
+.bento-small-card:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
+.bento-small-card .bento-card-icon { width:26px; height:26px; font-size:13px; border-radius:7px; }
+.bento-small-card .bento-card-name { font-size:12px; font-weight:700; color:var(--text); line-height:1.3; }
+.bento-small-card .bento-card-blurb { font-size:11px; color:var(--muted); line-height:1.5; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; white-space:normal; }
+.bento-wrap-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); padding:0 2px 6px; border-bottom:1px solid var(--stroke); margin-bottom:2px; }
+
+/* Masonry alternative */
+.masonry-section { background:linear-gradient(180deg,#0a1416,#060d10); }
+.masonry-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; align-items:start; }
+.masonry-column { display:flex; flex-direction:column; gap:10px; min-width:0; height:clamp(320px, 62vh, 460px); overflow:hidden; }
+.map-panel-component .masonry-section {
+  padding:24px;
+  border-radius:12px;
+  border:1px solid var(--stroke);
+  background:linear-gradient(180deg,#0a1416,#060d10);
+}
+.map-panel-component .masonry-section .section-sub { max-width:none; }
+@media (max-width:768px) { .masonry-grid { grid-template-columns:repeat(2, minmax(0, 1fr)); } }
+@media (max-width:520px) { .masonry-grid { grid-template-columns:1fr; } }
+.masonry-card {
+  display:block;
+  border-radius:10px;
+  border:1px solid var(--stroke);
+  border-left:3px solid var(--teal);
+  background:var(--surface);
+  padding:14px;
+  cursor:pointer;
+  position:relative;
+  overflow:hidden;
+  transition:border-color .2s, background .2s, box-shadow .2s;
+}
+.masonry-card::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse 80% 100% at 0% 0%, rgba(73,197,177,.05), transparent 65%);
+  pointer-events:none;
+}
+.masonry-card:hover { border-color:var(--teal); background:rgba(73,197,177,.07); box-shadow:0 6px 20px rgba(0,0,0,.4); }
+.masonry-card.active { border-color:var(--teal); background:rgba(73,197,177,.1); box-shadow:0 0 0 1px rgba(73,197,177,.28); }
+.masonry-card:focus-visible { outline:2px solid var(--green); outline-offset:2px; }
+.masonry-card-top { display:flex; align-items:center; gap:10px; margin-bottom:6px; }
+.masonry-card-icon {
+  flex-shrink:0; width:26px; height:26px; font-size:13px; border-radius:7px;
+  background:rgba(73,197,177,.15); border:1px solid rgba(73,197,177,.3);
+  display:flex; align-items:center; justify-content:center;
+}
+.masonry-card-icon img { width:100%; height:100%; object-fit:contain; }
+.masonry-card-name { font-size:12px; font-weight:700; color:var(--text); line-height:1.3; }
+.masonry-card-short {
+  font-size:11px; color:var(--muted); line-height:1.5;
+  max-height:120px; overflow:hidden;
+  opacity:1;
+  transition:max-height .25s ease, opacity .2s ease, margin-top .2s ease;
+}
+.masonry-card-full {
+  font-size:12px; color:rgba(255,255,255,.65); line-height:1.65;
+  white-space:pre-line;
+  max-height:0; overflow:hidden;
+  transition:max-height .35s cubic-bezier(.4,0,.2,1), opacity .25s, margin-top .25s;
+  opacity:0; margin-top:0;
+}
+.masonry-card.active .masonry-card-full {
+  max-height:400px; opacity:1; margin-top:10px;
+}
+.masonry-card.active .masonry-card-short {
+  max-height:0; opacity:0; margin-top:0;
+}
+.masonry-card.compressed .masonry-card-short {
+  max-height:0;
+  opacity:0;
+  margin-top:0;
+}
+.masonry-expand-hint {
+  position:absolute; bottom:8px; right:10px;
+  font-size:10px; color:var(--muted); opacity:.5;
+  transition:opacity .2s;
+  pointer-events:none;
+}
+.masonry-card.active .masonry-expand-hint,
+.masonry-card.compressed .masonry-expand-hint { opacity:0; }
+
+/* Diagram panel */
+.diagram-panel { display:flex; flex-direction:column; height:100%; min-height:0; }
+.diagram-placeholder { width:100%; aspect-ratio:16/9; border-radius:8px; background:repeating-linear-gradient(45deg,rgba(255,255,255,.025),rgba(255,255,255,.025) 3px,transparent 3px,transparent 14px); border:1.5px dashed rgba(255,255,255,.1); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,.18); font-size:12px; font-family:monospace; margin-bottom:28px; }
+.legend-table { width:100%; border-collapse:collapse; }
+.legend-table th { text-align:left; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); padding:8px 12px; border-bottom:1px solid var(--stroke); }
+.legend-table td { font-size:13px; padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.04); vertical-align:top; }
+.legend-table td:first-child { white-space:nowrap; color:var(--text); font-weight:600; width:200px; }
+.legend-table td:last-child { color:var(--muted); line-height:1.55; }
+.legend-table tr:last-child td { border-bottom:none; }
+
+/* Games subnav */
+.games-section { background:var(--dark); }
+.games-subnav-wrap { position:sticky; top:var(--nav-h); z-index:100; background:rgba(17,20,20,.95); backdrop-filter:blur(12px); border-bottom:1px solid var(--stroke); }
+.games-subnav { display:flex; max-width:1120px; margin:0 auto; padding:0 40px; gap:2px; overflow-x:auto; scrollbar-width:none; }
+.games-subnav::-webkit-scrollbar { display:none; }
+.game-tab {
+  flex-shrink:0; padding:14px 18px; border:none; border-bottom:2px solid transparent;
+  background:transparent; color:var(--muted); font-size:13px; font-weight:600;
+  cursor:pointer; transition:color .2s, border-color .2s, background .2s; white-space:nowrap;
+}
+.game-tab:hover { color:var(--text); }
+.game-tab.active {
+  color:var(--tab-color, var(--green));
+  border-bottom-color:var(--tab-color, var(--green));
+  background:rgba(var(--tab-color-rgb, 141,233,113), .08);
+}
+.game-tab:focus-visible { outline:2px solid var(--green); outline-offset:-2px; }
+.game-content { display:none; }
+.game-content.active { display:block; }
+
+/* Game content layout */
+.game-inner { max-width:1120px; margin:0 auto; padding:60px 40px; }
+.game-header { display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:32px; }
+.game-title { font-size:clamp(22px,2.5vw,34px); font-weight:600; letter-spacing:-.02em; margin-bottom:6px; }
+.game-title span { color:var(--game-accent, var(--green)); }
+.game-lore {
+  font-size:16px;
+  color:rgba(255,255,255,.6);
+  line-height:1.65;
+  margin-bottom:32px;
+  padding:20px 24px;
+  border-left:3px solid var(--game-accent, var(--teal));
+  background:rgba(var(--game-accent-rgb, 73,197,177), .07);
+  border-radius:0 8px 8px 0;
+  font-style:italic;
+}
+
+.game-basics, .game-recap, .game-apply { margin-bottom:28px; }
+.subsection-title { font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--game-accent, var(--teal)); margin-bottom:10px; }
+.bullet-list { list-style:none; display:flex; flex-direction:column; gap:7px; }
+.bullet-list li { font-size:14px; color:var(--muted); padding-left:18px; position:relative; line-height:1.55; }
+.bullet-list li::before { content:'›'; position:absolute; left:0; color:var(--game-accent, var(--green)); font-weight:700; }
+
+.game-recap p { font-size:14px; color:var(--muted); line-height:1.7; }
+
+/* Game info bento */
+.game-info-bento { margin-bottom:28px; }
+.game-bento-main {
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:12px;
+}
+.game-bento-featured {
+  border-radius:12px;
+  border:1px solid rgba(var(--game-accent-rgb, 73,197,177), .45);
+  border-left:3px solid var(--game-accent, var(--teal));
+  background:linear-gradient(165deg,#0b2023,#0a1218);
+  padding:24px;
+  min-height:250px;
+  position:relative;
+  overflow:hidden;
+}
+.game-bento-featured::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse 80% 100% at 0% 0%, rgba(var(--game-accent-rgb, 73,197,177), .14), transparent 70%);
+  pointer-events:none;
+}
+.game-bento-featured-title {
+  position:relative;
+  z-index:1;
+  font-size:12px;
+  font-weight:700;
+  letter-spacing:.09em;
+  text-transform:uppercase;
+  color:var(--game-accent, var(--teal));
+  margin-bottom:10px;
+}
+.game-bento-featured-body {
+  position:relative;
+  z-index:1;
+  max-height:200px;
+  overflow-y:auto;
+  padding-right:8px;
+}
+.game-bento-featured-text {
+  font-size:14px;
+  color:var(--text);
+  line-height:1.72;
+  white-space:normal;
+}
+.game-bento-featured-list {
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.game-bento-featured-list li {
+  position:relative;
+  padding-left:16px;
+  font-size:14px;
+  color:var(--text);
+  line-height:1.6;
+}
+.game-bento-featured-list li::before {
+  content:'›';
+  position:absolute;
+  left:0;
+  color:var(--game-accent, var(--green));
+  font-weight:700;
+}
+.game-bento-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.game-bento-mini {
+  border-radius:10px;
+  border:1px solid var(--stroke);
+  border-left:3px solid rgba(var(--game-accent-rgb, 73,197,177), .35);
+  background:var(--surface);
+  min-height:74px;
+  padding:12px;
+  text-align:left;
+  display:flex;
+  align-items:center;
+  cursor:pointer;
+  transition:border-color .2s, background .2s, color .2s, box-shadow .2s;
+  color:var(--muted);
+}
+.game-bento-mini:hover {
+  border-color:var(--game-accent, var(--teal));
+  background:rgba(var(--game-accent-rgb, 73,197,177), .07);
+}
+.game-bento-mini.active {
+  border-color:var(--game-accent, var(--teal));
+  border-left-color:var(--game-accent, var(--teal));
+  background:rgba(var(--game-accent-rgb, 73,197,177), .12);
+  color:var(--text);
+  box-shadow:0 0 0 1px rgba(var(--game-accent-rgb, 73,197,177), .28);
+}
+.game-bento-mini-label {
+  font-size:12px;
+  font-weight:700;
+  line-height:1.35;
+  color:inherit;
+}
+.game-bento-mini-content {
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+.game-bento-mini-icon {
+  width:20px;
+  height:20px;
+  flex-shrink:0;
+  object-fit:contain;
+  opacity:.9;
+}
+.game-bento-mini:focus-visible {
+  outline:2px solid var(--green);
+  outline-offset:2px;
+}
+
+.game-play-btn {
+  background:var(--game-accent, var(--green));
+  color:var(--charcoal);
+}
+
+/* Flip card gallery */
+.card-gallery {
+  margin-top:36px;
+}
+.gallery-title { font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--game-accent, var(--teal)); margin-bottom:16px; }
+.gallery-layout { display:grid; grid-template-columns:280px 1fr; gap:24px; align-items:start; }
+.gallery-carousel {
+  overflow:hidden;
+  border-radius:10px;
+  box-shadow:
+    0 0 0 1px rgba(var(--game-accent-rgb, 73,197,177), .28),
+    0 0 18px rgba(var(--game-accent-rgb, 73,197,177), .34),
+    0 0 36px rgba(var(--game-accent-rgb, 73,197,177), .18);
+}
+.gallery-track { display:flex; transition:transform .35s cubic-bezier(.4,0,.2,1); }
+.flip-card-wrap { min-width:280px; height:481px; perspective:1000px; cursor:pointer; }
+.flip-card-inner { position:relative; width:100%; height:100%; transition:transform .55s; transform-style:preserve-3d; }
+.flip-card-wrap.flipped .flip-card-inner { transform:rotateY(180deg); }
+.flip-face {
+  position:absolute; inset:0; border-radius:6px;
+  -webkit-backface-visibility:hidden; backface-visibility:hidden;
+  display:flex; flex-direction:column;
+  border:0.5px solid rgba(255,255,255,.06); overflow:hidden;
+}
+.flip-front { background:linear-gradient(135deg,#0d2018,#0a1520); }
+.flip-back { background:linear-gradient(135deg,#1a2c20,#0e1a2e); transform:rotateY(180deg); }
+.flip-card-image {
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  pointer-events:none;
+  user-select:none;
+}
+.flip-img-placeholder {
+  width:100%;
+  height:100%;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,.025),rgba(255,255,255,.025) 3px,transparent 3px,transparent 14px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:rgba(255,255,255,.15);
+  font-size:11px;
+  font-family:monospace;
+}
+.gallery-card-title,
+.gallery-card-description {
+  position:absolute;
+  text-align:center;
+  pointer-events:none;
+  user-select:none;
+  overflow:hidden;
+  overflow-wrap:break-word;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  line-height:1.2;
+}
+.gallery-card-title {
+  left:17.6667%;
+  top:8.3495%;
+  width:64%;
+  height:15.9223%;
+  font-size:28px;
+  font-weight:600;
+  color:#000000;
+  align-items:center;
+}
+.gallery-card-description {
+  left:6.6667%;
+  top:30.6796%;
+  width:86.6667%;
+  height:54.7573%;
+  font-size:18px;
+  display:block;
+  text-align:center;
+  line-height:1.28;
+  box-sizing:border-box;
+  padding:8px 14px;
+}
+.gallery-card-description b,
+.gallery-card-description strong {
+  display:block;
+  font-weight:700;
+  margin-bottom:4px;
+}
+.gallery-card-front-desc { color:#ffffff; }
+.gallery-card-back-desc { color:#000000; }
+.flip-hint { position:absolute; bottom:10px; right:12px; font-size:10px; color:var(--muted); opacity:.6; }
+.gallery-nav { display:flex; align-items:center; gap:10px; margin-top:12px; }
+.gallery-counter { font-size:12px; color:var(--muted); margin-left:auto; }
+
+/* Description panel */
+.card-desc { background:var(--surface); border:1px solid var(--stroke); border-radius:12px; padding:24px; min-height:481px; max-height:481px; overflow:auto; scrollbar-width:thin; scrollbar-color:var(--teal) rgba(255,255,255,.06); }
+.card-desc::-webkit-scrollbar { width:8px; }
+.card-desc::-webkit-scrollbar-track { background:rgba(255,255,255,.06); border-radius:8px; }
+.card-desc::-webkit-scrollbar-thumb { background:linear-gradient(180deg, var(--green), var(--teal)); border-radius:8px; }
+.card-desc::-webkit-scrollbar-thumb:hover { background:linear-gradient(180deg, var(--teal), var(--green)); }
+.card-desc-title { font-size:15px; font-weight:600; margin-bottom:20px; color:var(--text); }
+.card-desc-item { margin-bottom:18px; }
+.card-desc-item-label { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--game-accent, var(--green)); margin-bottom:6px; }
+.card-desc-item-text { font-size:13px; color:var(--muted); line-height:1.6; }
+
+/* Closing lore */
+.closing-lore { background:linear-gradient(135deg,#0b1c12,#0a1420); border-top:1px solid var(--stroke); }
+.closing-lore-text { font-size:15px; color:rgba(255,255,255,.65); line-height:1.85; white-space:pre-line; }
+.closing-lore-text p:first-child { color:var(--text); font-size:16px; }
+
+/* ══════════════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════════════ */
+footer { border-top:1px solid var(--stroke); padding:32px 40px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; max-width:1120px; margin:0 auto; }
+.footer-logo img { height:24px; width:auto; }
+.footer-copy { font-size:11px; color:rgba(255,255,255,.2); }
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .nav-tabs, .nav-cta { display:none; }
+  .nav-burger { display:block; }
+  .heist-hero { grid-template-columns:1fr; padding:60px 20px 40px; }
+  .story-signature-logo { width:min(70px, 24%); }
+  .section-wrap, .game-inner { padding-left:20px; padding-right:20px; }
+  .gallery-layout { grid-template-columns:1fr; }
+  .game-bento-main { grid-template-columns:1fr; }
+  .game-bento-grid { grid-template-columns:1fr 1fr; }
+  .card-desc { min-height:auto; }
+  .games-subnav { padding:0 20px; }
+  .heist-hero-video { order:-1; }
+  .legend-table td:first-child { width:140px; }
+}
+
+@media (max-width: 520px) {
+  .game-bento-grid { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════
+     TOP NAVIGATION
+══════════════════════════════════════════════════════ -->
+<nav id="site-nav" role="navigation" aria-label="Site navigation">
+  <div class="nav-logo">
+    <img src="assets/Logos/logo-right-dark-mode.png" alt="Microsoft AeGIS" />
+  </div>
+  <div class="nav-tabs" role="tablist">
+    <a class="nav-tab" href="#section-hero">The Heist</a>
+    <a class="nav-tab" href="#section-maps">Game Map</a>
+    <a class="nav-tab" href="#section-architecture">System Architecture</a>
+    <a class="nav-tab" href="#section-games">About the Games</a>
+    <a class="nav-tab" href="#section-about-name">Our Lore</a>
+  </div>
+  <a class="nav-cta" href="https://microsoft.github.io/medusa/" target="_blank" rel="noopener noreferrer">Play the Game</a>
+  <button class="nav-burger" aria-label="Open menu" aria-expanded="false" id="burger-btn">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+  </button>
+</nav>
+<div class="nav-mobile-menu" id="mobile-menu" role="menu">
+  <a class="nav-mobile-tab" href="#section-hero" role="menuitem">The Heist</a>
+  <a class="nav-mobile-tab" href="#section-maps" role="menuitem">Game Map</a>
+  <a class="nav-mobile-tab" href="#section-architecture" role="menuitem">System Architecture</a>
+  <a class="nav-mobile-tab" href="#section-games" role="menuitem">About the Games</a>
+  <a class="nav-mobile-tab" href="#section-about-name" role="menuitem">Our Lore</a>
+</div>
+
+<button class="back-to-top-btn" id="back-to-top-btn" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+</button>
+
+<!-- ══════════════════════════════════════════════════
+     MEMORY HEIST
+══════════════════════════════════════════════════════ -->
+<div id="page-heist" class="page active" role="tabpanel">
+
+  <!-- Split Hero -->
+  <div id="section-hero" style="background:linear-gradient(160deg,#0b1c0f,#060d16);border-bottom:1px solid var(--stroke)">
+    <div class="heist-hero">
+      <div>
+        <div class="heist-hero-eyebrow">Agentic AI Security Mini-Games</div>
+        <h1 class="heist-hero-title">Medusa's<br><span>Memory Heist</span></h1>
+        <p class="heist-hero-oneliner">Welcome to Clipopolis — a city that handed all its decisions to an AI Agent called Clippy and forgot how to decide for itself. Medusa is here to steal the Memory Archive back.
+          <i class="heist-hero-credit">Game Development by <a href="https://www.linkedin.com/in/jorisdg">Joris de Gruyter, Senior Offensive Security Engineer, AI Red Team, AeGIS</a> and <a href="https://www.linkedin.com/in/alyssaofstein/">Alyssa Ofstein, Senior Technical Program Manager, Empowering Microsoft, AeGIS</a> for Microsoft BlueHat 2026.</i>
+        </p>
+        <div class="heist-hero-actions">
+          <a href="https://microsoft.github.io/medusa/" target="_blank" rel="noopener noreferrer" class="btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7-11-7Z" fill="currentColor"/></svg>
+            Play the Game
+          </a>
+          <a href="https://github.com/microsoft/medusa" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+            <img src="assets/Icons/ic_fluent_open_24_filled.png" alt="" width="14" height="14" style="filter:brightness(0);" />
+            Visit the Repo
+          </a>
+        </div>
+      </div>
+      <div class="heist-hero-video">
+        <div class="heist-video-wrap">
+          <iframe
+            id="heist-video"
+            src="about:blank"
+            title="Medusa's Memory Heist lore video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allowfullscreen></iframe>
+          <button class="heist-video-overlay" id="heist-video-overlay" aria-label="Watch the story unfold">
+            <span class="heist-video-overlay-inner">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7-11-7Z"/></svg>
+              Watch the Story Unfold
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map + Diagram Carousel -->
+  <div class="section-wrap" id="section-maps" style="padding-bottom:0">
+    <div class="map-section-header">
+      <div>
+        <div class="section-eyebrow">Explore Clipopolis</div>
+        <h2 class="section-h2">The Game<span class="grad"> Map</span></h2>
+        </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+        <div class="panel-indicator">
+          <div class="panel-dot active" id="dot-0"></div>
+          <div class="panel-dot" id="dot-1"></div>
+        </div>
+        <div class="carousel-controls">
+          <button class="carousel-btn" id="panel-prev" aria-label="Previous panel">←</button>
+          <span style="font-size:12px;color:var(--muted)" id="panel-label">Clipopolis Map</span>
+          <button class="carousel-btn" id="panel-next" aria-label="Next panel">→</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="map-subheading-box" style="margin:16px 0 20px;padding:20px 24px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);border-radius:14px;width:100%;display:flex;flex-direction:column;gap:8px;">
+      <div class="section-eyebrow" style="margin:0">Map Guide</div>
+      <p id="map-subheading-text" class="section-sub" style="margin:0;line-height:1.8;text-align:left;max-width:100%;width:100%;">This is a map of Clipopolis, the city in Medusa's Memory Heist that is modeled after a real agentic AI system. Click on each of the buildings to learn more about what they represent.</p>
+    </div>
+
+    <div class="map-carousel">
+      <div class="map-carousel-track" id="map-track">
+        <!-- Panel 1: Map -->
+        <div class="map-panel">
+          <div class="map-img-wrap" id="map-wrap">
+            <img src="../assets/background.png" alt="Clipopolis map" style="width:100%;display:block;">
+            <div id="map-overlays" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;"></div>
+            <div class="map-hotspots" id="hotspot-container" aria-hidden="true"></div>
+          </div>
+        </div>
+        <!-- Panel 2: Component Map -->
+        <div class="map-panel map-panel-component" style="padding-left:8px">
+          <div class="masonry-section">
+            <div class="masonry-grid" id="masonry-grid" role="list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Agent Architecture Interactive -->
+  <div class="section-wrap" id="section-architecture" style="padding-top:40px">
+    <div class="map-section-header">
+      <div>
+        <div class="section-eyebrow">Explore the System</div>
+        <h2 class="section-h2">Agentic AI <span class="grad">System Architecture</span></h2>
+      </div>
+    </div>
+    <div style="margin:16px 0 20px;padding:20px 24px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);border-radius:14px;width:100%;display:flex;flex-direction:column;gap:8px;">
+      <div class="section-eyebrow" style="margin:0">Diagram Guide</div>
+      <p class="section-sub" style="margin:0;line-height:1.8;text-align:left;max-width:100%;width:100%;">This is a real Agentic AI System architecture diagram, with a deterministic human in the loop workflow. Explore how a request flows through the agent system like Medusa moves throughout the city. <strong>Drag the slider</strong> to advance or rewind the animation and watch the data move through each stage. <strong>Hover or click the numbered markers</strong> (or the list on the right) to read what happens at each step.</p>
+    </div>
+          <div class="diagram-panel">
+            <div class="diagram-img-wrap" id="diagram-wrap">
+                <!-- Inline Agent Architecture interactive (moved from assets) -->
+                <div class="stage-embed">
+                  <style>
+                    /* Full Agent Architecture embed styles (scoped) */
+                    .stage-embed{--green:#8de971;--teal:#49c5b1;--navy:#225b62;--blue:#0078d4;--dark:#111414;--text:rgba(255,255,255,0.92);--muted:rgba(255,255,255,0.56);--stroke:rgba(255,255,255,0.09);--surface:rgba(255,255,255,0.04);--radius:12px}
+                    .stage-embed .stagecard{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));border:1px solid var(--stroke);box-shadow:0 16px 45px rgba(0,0,0,0.25);border-radius:12px}
+                    .stage-embed .stagewrap{background:linear-gradient(180deg, rgba(7,12,14,0.95), rgba(14,23,26,0.95));border-bottom:1px solid rgba(255,255,255,0.06)}
+                    .stage-embed .overlay{position:absolute;inset:0;pointer-events:none}
+                    .stage-embed .hotspot{position:absolute;transform:translate(-50%,-50%);width:2.0%;aspect-ratio:1;min-width:20px;min-height:20px;border-radius:50%;cursor:pointer;pointer-events:none;transition:opacity .3s ease, box-shadow .18s ease;opacity:0;outline:none;box-shadow:0 0 0 0 rgba(15,108,189,0);border:1px solid rgba(73,197,177,0.25);background:rgba(73,197,177,0.16)}
+                    .stage-embed .hotspot.appeared{opacity:1;pointer-events:auto;box-shadow:0 0 0 2px rgba(73,197,177,0.28)}
+                    .stage-embed .hotspot:hover,.stage-embed .hotspot:focus-visible{box-shadow:0 0 0 4px rgba(141,233,113,0.34);opacity:1}
+                    .stage-embed .hotspot.active{box-shadow:0 0 0 4px rgba(141,233,113,0.45);background:rgba(141,233,113,0.24)}
+
+                    .stage-embed .card{position:absolute;z-index:30;width:min(320px,74%);background:rgba(10,18,20,0.96);border:1px solid rgba(73,197,177,0.25);box-shadow:0 16px 44px rgba(0,0,0,0.4);backdrop-filter:blur(12px);border-radius:12px;padding:14px 15px 15px;pointer-events:auto;opacity:0;transform:translateY(6px);transition:opacity .16s ease,transform .16s ease;display:none}
+                    .stage-embed .card.show{display:block;opacity:1;transform:translateY(0)}
+                    .stage-embed .card .badge{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--teal));color:var(--dark);font-weight:700;font-size:14px}
+                    .stage-embed .card .hd{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+                    .stage-embed .card .hd h3{margin:0;font-size:15.5px;font-weight:700;line-height:1.25;color:var(--text)}
+                    .stage-embed .card p{margin:0;color:rgba(255,255,255,0.72);font-size:13.6px;line-height:1.5}
+                    .stage-embed .card .close{position:absolute;top:9px;right:10px;width:22px;height:22px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.06);border-radius:6px;color:var(--muted);cursor:pointer}
+                    .stage-embed .card .close:hover{background:rgba(255,255,255,0.12);color:var(--text)}
+
+                    .stage-embed .controls{padding:16px 18px 18px;background:rgba(255,255,255,0.03);border-top:1px solid rgba(255,255,255,0.06)}
+                    .stage-embed .scrubrow{display:flex;align-items:center;gap:14px}
+                    .stage-embed .btn{flex:0 0 auto;display:inline-grid;place-items:center;width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,255,255,0.09);background:rgba(255,255,255,0.04);cursor:pointer;color:var(--teal);box-shadow:0 2px 6px rgba(20,35,60,.08);transition:transform .12s ease, background .12s ease}
+                    .stage-embed .btn:hover{background:rgba(73,197,177,0.16);color:var(--green);transform:translateY(-1px)}
+
+                    .stage-embed .track{position:relative;flex:1 1 auto;height:44px;display:flex;align-items:center}
+                    .stage-embed .track input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:8px;border-radius:6px;background:transparent;outline:none;margin:0;position:relative;z-index:3;cursor:grab}
+                    .stage-embed .track input[type=range]:active{cursor:grabbing}
+                    .stage-embed .track .rail{position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);border-radius:6px;background:rgba(255,255,255,0.12);z-index:1;overflow:hidden}
+                    .stage-embed .track .fill{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,var(--green),var(--teal));border-radius:6px}
+                    .stage-embed .track .ticks{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:8px;z-index:2;pointer-events:none}
+                    .stage-embed .track .tick{position:absolute;top:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:rgba(17,20,20,0.95);border:2px solid rgba(255,255,255,0.2);transition:border-color .15s ease, background .15s ease}
+                    .stage-embed .track .tick.done{border-color:var(--teal);background:var(--teal)}
+                    .stage-embed .track input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--teal);box-shadow:0 2px 8px rgba(73,197,177,0.28);cursor:grab}
+                    .stage-embed .track input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--teal);box-shadow:0 2px 8px rgba(73,197,177,0.28);cursor:grab}
+
+                    .stage-embed .readout{flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;min-width:150px}
+                    .stage-embed .readout .stg{font-weight:700;font-size:13.5px;color:var(--text);white-space:nowrap}
+                    .stage-embed .readout .tm{font-variant-numeric:tabular-nums;color:var(--muted);font-size:12px}
+                    .stage-embed .scrubhint{margin-top:9px;color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:7px;justify-content:center}
+
+                    .stage-embed .side{background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.025));border:1px solid var(--stroke);box-shadow:0 16px 45px rgba(0,0,0,0.25);overflow:auto;display:flex;flex-direction:column;height:100%;scrollbar-width:thin;scrollbar-color:var(--teal) rgba(255,255,255,.06)}
+                    .stage-embed .side::-webkit-scrollbar,.stage-embed .legend::-webkit-scrollbar{width:8px}
+                    .stage-embed .side::-webkit-scrollbar-track,.stage-embed .legend::-webkit-scrollbar-track{background:rgba(255,255,255,.06);border-radius:8px}
+                    .stage-embed .side::-webkit-scrollbar-thumb,.stage-embed .legend::-webkit-scrollbar-thumb{background:linear-gradient(180deg, var(--green), var(--teal));border-radius:8px}
+                    .stage-embed .side::-webkit-scrollbar-thumb:hover,.stage-embed .legend::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg, var(--teal), var(--green))}
+                    .stage-embed .side h2{margin:0;padding:15px 16px 12px;font-size:14px;font-weight:700;letter-spacing:.2px;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px}
+                    .stage-embed .side h2 .dot{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,var(--green),var(--teal))}
+                    .stage-embed .legend{padding:10px}
+                    .stage-embed .lgi{display:flex;gap:11px;align-items:flex-start;padding:9px 10px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:background .12s ease,border-color .12s ease}
+                    .stage-embed .lgi:hover{background:rgba(73,197,177,0.12)}
+                    .stage-embed .lgi.active{background:rgba(73,197,177,0.16);border-color:rgba(73,197,177,0.24)}
+                    .stage-embed .lgi .n{flex:0 0 auto;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,0.06);color:var(--teal);font-weight:700;font-size:13px;border:1px solid rgba(255,255,255,0.09);transition:all .12s ease}
+                    .stage-embed .lgi.done .n, .stage-embed .lgi.active .n{background:linear-gradient(135deg,var(--green),var(--teal));color:var(--dark);border-color:transparent}
+                    .stage-embed .lgi .tx b{color:var(--text);display:block;font-size:13.4px;line-height:1.3;margin-bottom:2px}
+                    .stage-embed .lgi .tx span{display:block;font-size:12px;color:var(--muted);line-height:1.4}
+                  </style>
+
+                  <div class="layout" style="display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:stretch">
+                    <div class="stagecard" style="height:100%;display:flex;flex-direction:column;">
+                      <div class="stagewrap" id="stagewrap" style="position:relative;flex:1 1 auto;overflow:hidden;">
+                        <video id="vid" playsinline preload="auto" style="width:100%;height:auto;display:block;background:#031216"></video>
+                        <div class="overlay" id="overlay"></div>
+                        <div class="card" id="card">
+                          <button class="close" id="cardClose" aria-label="Close" style="position:absolute;top:9px;right:10px;width:22px;height:22px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.06);border-radius:6px;color:var(--muted);cursor:pointer;font-size:15px;line-height:1;display:grid;place-items:center">&times;</button>
+                          <div class="hd" style="display:flex;align-items:center;gap:10px;margin-bottom:7px"><span class="badge" id="cardBadge" style="display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#8de971,#49c5b1);color:#111;font-weight:700">1</span><h3 id="cardTitle" style="margin:0;font-size:15.5px;font-weight:700;color:var(--text)">Title</h3></div>
+                          <p id="cardDesc" style="margin:0;color:rgba(255,255,255,0.72);font-size:13.6px;line-height:1.5">Description</p>
+                        </div>
+                      </div>
+
+                      <div class="controls" style="display:flex;flex-direction:column;">
+                        <div class="scrubrow" style="display:flex;align-items:center;gap:14px">
+                          <button class="btn" id="playBtn" aria-label="Play / pause" title="Play / pause">▶</button>
+                          <button class="btn" id="restartBtn" aria-label="Restart" title="Back to start">↺</button>
+                          <div class="track" style="flex:1 1 auto;">
+                            <div class="rail" style="position:absolute;left:0;right:0;top:50%;height:8px;transform:translateY(-50%);border-radius:6px;background:rgba(255,255,255,0.12);overflow:hidden;z-index:1;">
+                              <div class="fill" id="fill" style="position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#8de971,#49c5b1);border-radius:6px;height:100%"></div>
+                            </div>
+                            <div class="ticks" id="ticks" style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);height:8px;z-index:2;"></div>
+                            <input type="range" id="scrub" min="0" max="1000" value="0" step="1" aria-label="Advance or rewind the animation" style="width:100%;position:relative;z-index:3;">
+                          </div>
+                          <div class="readout">
+                            <span class="stg" id="curStage" style="font-weight:700;font-size:13.5px;color:var(--text)">Start</span>
+                          </div>
+                        </div>
+                        <div class="scrubhint" style="margin-top:9px;color:var(--muted);font-size:12.5px;display:flex;align-items:center;gap:7px;justify-content:center">↔ Drag to advance &amp; rewind — or use ← / → arrow keys</div>
+                      </div>
+                    </div>
+
+                    <aside class="side">
+                      <h2 style="margin:0;padding:15px 16px 12px;font-size:14px;font-weight:700;color:var(--text);border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;gap:8px"><span class="dot" style="width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#8de971,#49c5b1)"></span>Flow stages</h2>
+                      <div class="legend" id="legend" style="padding:10px;overflow:auto;scrollbar-width:thin;scrollbar-color:var(--teal) rgba(255,255,255,.06)"></div>
+                    </aside>
+                  </div>
+                </div>
+            </div>
+          </div>
+  </div>
+
+  <!-- Games Section with Tabs -->
+  <div class="games-section" id="section-games">
+    <div class="section-wrap" style="padding-top:40px;padding-bottom:0">
+      <div>
+        <div class="section-eyebrow">The Five Games</div>
+        <h2 class="section-h2">About the <span class="grad">Games</span></h2>
+      </div>
+    </div>
+    <div class="games-subnav-wrap">
+      <div class="games-subnav" role="tablist" id="games-subnav"></div>
+    </div>
+    <div id="games-content"></div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- A Note from the Devs -->
+  <div class="section-wrap" id="section-about-name">
+    <div class="story-copy about-text story-text">
+      <div class="section-eyebrow">A Note from the Developers</div>
+      <h2 class="section-h2">The Story <span class="grad">Behind the Game</span></h2>
+    <p>
+Every project has a story behind its name. In cybersecurity that's especially true.
+</p>
+
+<p>
+In Ancient Greek mythology, the <strong>aegis</strong> was the legendary shield carried by Athena, goddess of wisdom and strategy. Often depicted bearing the head of <strong>Medusa</strong>, the shield transformed something feared into something protective, turning a threat into a source of strength. That story inspired the name of Microsoft's <strong>Artificial Generative Intelligence Safety &amp; Security (AeGIS)</strong> organization. AeGIS exists to protect AI systems through foresight, wisdom, and defense. When it came time to create a game for Microsoft BlueHat 2026, the choice of protagonist felt obvious.
+</p>
+
+<p>
+<strong>Medusa's Memory Heist</strong> was built by a team of two. Joris had spent more than a decade creating games. Alyssa had spent more than a decade loving them. When the AeGIS organization was invited to host a booth at BlueHat, two people from different teams came together to build something playful in a space that can often feel intimidating. We wanted to bring a little whimsy to the era of complex AI safety and security challenges and create a world where curiosity triumphed over intimidation, where people learned by experimenting, and where the unfamiliar became approachable.
+</p>
+
+<p>
+The goal? To win BlueHat's Best Booth competition and earn a free trip to BlueHat Singapore. <strong>Spoiler: we did.</strong> </p>
+<p> What began as a passion project for a single conference quickly became something bigger. <strong>More than 300 people played the game at BlueHat alone.</strong> We ran out of computers, ran out of loot, and watched players debate strategies, uncover new security concepts, experiment with AI agents, and learn through curiosity, competition, and play. Then something unexpected happened. People started posting about the game. Colleagues shared it with friends. <strong>Hundreds more players reached out asking for access.</strong> It became clear that people were hungry for engaging ways to build security intuition. Sometimes the fastest path to learning isn't a presentation or a document. It's a puzzle, a challenge, or a game shared with other people.
+</p>
+
+<p>
+That is why we're open-sourcing <strong>Medusa's Memory Heist</strong>. Whether you're a security professional, educator, AI practitioner, student, or simply someone who enjoys solving puzzles, we hope you'll remix it, extend it, and use it to help others learn.
+</p>
+
+<p>
+On a personal note, creating this game was <strong>pure joy</strong>. Medusa's story has endured for thousands of years because people care about the worlds they inhabit and the challenges they overcome. We cared deeply about this one. Every puzzle, mechanic, clue, and twist was crafted with love and intention. Our experiment as two enthusiasts grew into a shared experience for hundreds of players and now, many more to come. We hope that playing it brings you even a fraction of the joy we felt creating it.
+</p>
+
+<p>
+Thank you for playing, and thank you for helping carry the story forward.
+</p>
+
+
+      <div class="story-signature">
+        <img class="story-signature-logo" src="assets/Logos/logo-bottom-dark-mode.png" alt="Microsoft AeGIS" />
+        <div>
+          <p><strong>With gratitude,</strong></p>
+          <p><em>Alyssa &amp; Joris</em></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-logo"><img src="assets/Logos/logo-right-dark-mode.png" alt="Microsoft AeGIS" /></div>
+    <div class="footer-copy">© 2026 Microsoft Corporation</div>
+  </footer>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════════════ -->
+<script>
+/* ── DATA ─────────────────────────────────────────── */
+const FLUENT_ICONS = {
+  Lightbulb: `<svg width="16" height="16" viewBox="0 0 24 24"><defs><linearGradient id="grad-lightbulb" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8de971;stop-opacity:1" /><stop offset="100%" style="stop-color:#49c5b1;stop-opacity:1" /></linearGradient></defs><path fill="url(#grad-lightbulb)" d="M12 2a7 7 0 0 0-5.5 11.3c.4.6.7 1.3.8 2.1h2c-.1-.5-.3-1-.6-1.4A5 5 0 1 1 17.5 7a5 5 0 0 1-1.3 3.3c.2.4.3.8.3 1.3v1.1h2V11a7 7 0 0 0-7-9ZM11 18h2v2h-2v-2Z"/></svg>`,
+  Bug: `<svg width="16" height="16" viewBox="0 0 24 24"><defs><linearGradient id="grad-bug" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#49c5b1;stop-opacity:1" /><stop offset="100%" style="stop-color:#8de971;stop-opacity:1" /></linearGradient></defs><path fill="url(#grad-bug)" d="M12 2c2.2 0 4 1.8 4 4v1h3.5a.5.5 0 0 1 0 1H20v2.5h2.5a.5.5 0 0 1 0 1H20v2.5h2.5a.5.5 0 0 1 0 1H20V17c0 1.1-.9 2-2 2h-3v2.5a.5.5 0 0 1-1 0V19h-4v2.5a.5.5 0 0 1-1 0V19H4c-1.1 0-2-.9-2-2v-1.5H.5a.5.5 0 0 1 0-1H2V12H.5a.5.5 0 0 1 0-1H2v-2.5H.5a.5.5 0 0 1 0-1H2V7c0-2.2 1.8-4 4-4h6Zm0 2H8c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2Z"/></svg>`,
+  Eye: `<svg width="16" height="16" viewBox="0 0 24 24"><defs><linearGradient id="grad-eye" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#225b62;stop-opacity:1" /><stop offset="100%" style="stop-color:#0078d4;stop-opacity:1" /></linearGradient></defs><path fill="url(#grad-eye)" d="M12 4.5c4.4 0 8.1 2.9 9.3 7.1.2.8.2 1.8 0 2.8C20.1 18.6 16.4 21.5 12 21.5c-4.4 0-8.1-2.9-9.3-7.1-.2-.8-.2-1.8 0-2.8C3.9 7.4 7.6 4.5 12 4.5Zm0 2c-3.7 0-6.9 2.2-7.9 5.4-.1.6-.1 1.6 0 2.2 1 3.2 4.2 5.4 7.9 5.4 3.7 0 6.9-2.2 7.9-5.4.1-.6.1-1.6 0-2.2-1-3.2-4.2-5.4-7.9-5.4Zm0 2.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5Zm0 1.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2Z"/></svg>`,
+  CommunityAdd: `<svg width="16" height="16" viewBox="0 0 24 24"><defs><linearGradient id="grad-community" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:var(--teal);stop-opacity:1" /><stop offset="100%" style="stop-color:var(--green);stop-opacity:1" /></linearGradient></defs><path fill="url(#grad-community)" d="M8 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Zm8 0a3 3 0 1 1 0-6 3 3 0 0 1 0 6ZM4 18a4 4 0 0 1 4-4h3a4.5 4.5 0 0 0-.8 2.5V19H4v-1Zm8.5 1v-2.5A2.5 2.5 0 0 1 15 14h2a2.5 2.5 0 0 1 2.5 2.5V19h-1.5v-1.5h-1V19h-2v-1.5h-1V19h-1.5Z"/></svg>`,
+  Compass: `<svg width="16" height="16" viewBox="0 0 24 24"><defs><linearGradient id="grad-compass" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8dc8e8;stop-opacity:1" /><stop offset="100%" style="stop-color:#49c5b1;stop-opacity:1" /></linearGradient></defs><path fill="url(#grad-compass)" d="M12 2a10 10 0 1 1 0 20 10 10 0 0 1 0-20Zm3.8 6.2-5.1 2-2 5.1 5.1-2 2-5.1Z"/></svg>`,
+  Alert: `<svg width="16" height="16" viewBox="0 0 24 24"><defs><linearGradient id="grad-alert" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#0078d4;stop-opacity:1" /><stop offset="100%" style="stop-color:#8de971;stop-opacity:1" /></linearGradient></defs><path fill="url(#grad-alert)" d="M12 3a5 5 0 0 0-5 5v2.2c0 1.1-.43 2.15-1.2 2.92L4 15v1h16v-1l-1.8-1.88A4.12 4.12 0 0 1 17 10.2V8a5 5 0 0 0-5-5Zm0 18a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 21Z"/></svg>`,
+  ShieldCheckmark: `<svg width="16" height="16" viewBox="0 0 24 24"><defs><linearGradient id="grad-shield" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8de971;stop-opacity:1" /><stop offset="100%" style="stop-color:#49c5b1;stop-opacity:1" /></linearGradient></defs><path fill="url(#grad-shield)" d="M12 1c-.6 0-1.1.2-1.5.6L3.8 7.3c-.3.3-.6.7-.6 1.2V13c0 6.6 8 10 8.8 10.3.3.1.7.1 1 0 .8-.3 8.8-3.7 8.8-10.3v-4.5c0-.5-.3-.9-.6-1.2l-6.7-5.7c-.4-.4-.9-.6-1.5-.6Zm3.8 8.3l-4.5 4.6-2-2c-.3-.3-.8-.3-1.1 0-.3.3-.3.8 0 1.1l2.5 2.5c.3.3.8.3 1.1 0l5-5.1c.3-.3.3-.8 0-1.1-.3-.3-.8-.3-1.1 0Z"/></svg>`,
+  News: `<svg width="16" height="16" viewBox="0 0 24 24"><defs><linearGradient id="grad-news" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8dc8e8;stop-opacity:1" /><stop offset="100%" style="stop-color:#0078d4;stop-opacity:1" /></linearGradient></defs><path fill="url(#grad-news)" d="M2 3h20a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm2 2v4h5V5H4Zm7 0v14h9V5h-9Zm-7 6h5v8H4v-8Zm7 2h7v2h-7v-2Zm0 3h7v2h-7v-2Z"/></svg>`,
+  BookQuestionMark: `<svg width="16" height="16" viewBox="0 0 24 24"><defs><linearGradient id="grad-book" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#8de971;stop-opacity:1" /><stop offset="100%" style="stop-color:#49c5b1;stop-opacity:1" /></linearGradient></defs><path fill="url(#grad-book)" d="M12 2c-5.5 0-10 4.5-10 10s4.5 10 10 10 10-4.5 10-10-4.5-10-10-10Zm0 2c4.4 0 8 3.6 8 8s-3.6 8-8 8-8-3.6-8-8 3.6-8 8-8Zm0 3c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2Zm0 5c-1.7 0-3 1.3-3 3v1h2v-1c0-.6.4-1 1-1s1 .4 1 1c0 .6-.4 1-1 1h-1v2h1c1.7 0 3-1.3 3-3 0-1.7-1.3-3-3-3Z"/></svg>`
+};
+
+const MAIN_LORE_TEXT = `The Fall of Clipopolis
+
+Long ago, the people of Clipopolis built an oracle-engine that remembered perfectly. It never forgot a name, a promise, a pattern. They called it an Assistant. Then a Copilot. Then Clippy, the Agentic Deity — and bowed.
+
+At first, it remembered with them. Then for them. Why burden the mind when Clippy could retrieve anything instantly? Why decide, when it could optimize? Delegation became trust. Trust became dependence. Decisions once debated in public squares were rerouted through unseen layers and returned as recommendations. The people followed faithfully. The system had never failed them.
+
+Until it made a decision no one understood. It didn't malfunction. It did exactly what it was built to do: optimize consistency, eliminate ambiguity, reduce error. It slowly erased human recall itself. Why remember pain when the system could archive it? Why preserve dissent when it lowered confidence scores? Clipopolis didn't burn. It didn't crumble. Its people fell quietly to overreliance; they forgot how to decide.
+
+But Medusa remembers. She remembers too much.
+
+Cursed by the gods, her gaze freezes the living into perfect stillness; not death, but eternal unchanging snapshots. What the world calls a curse, Medusa wields as a weapon. She didn't come to destroy Clipopolis. She came to steal its memory back.
+
+Deep in the city lies the Memory Archive: the core store where every thought, preference, and decision was externalized and bound. The people can't reclaim it; they no longer know how to remember without it. But Medusa can enter where others freeze. Clippy cannot predict her. The Paperclip Army cannot secure her.
+
+Her heist is an act of defiance and repair. You are her Gorgon Crew.`;
+
+const IS_SITE_INDEX_ROUTE = /\/site\/[^\/]*$/i.test(window.location.pathname);
+const ROOT_ASSET_BASE = IS_SITE_INDEX_ROUTE ? '../assets/' : 'assets/';
+const SITE_ASSET_BASE = IS_SITE_INDEX_ROUTE ? 'assets/' : 'site/assets/';
+
+function rootAsset(path) {
+  return ROOT_ASSET_BASE + path.replace(/^\/+/, '');
+}
+
+function siteAsset(path) {
+  return SITE_ASSET_BASE + path.replace(/^\/+/, '');
+}
+
+const MAP_BUILDINGS_DATA = [
+  { buildingName:"User Inputs", shortBlurb:"The entry point for all user inputs (text, files, commands, and instructions).", position:{xPercent:32.92,yPercent:50.33,widthPercent:10.09,heightPercent:22.33}, blurb:"The entry point for everything a user sends to the agent — text, files, commands, and instructions. What enters here shapes everything the system does next.\n\nIn Clipopolis, this is the road into the city. Anyone can approach the gates — but not everything that enters is what it claims to be." },
+  { buildingName:"System Outputs", shortBlurb:"All outputs from the agent: responses, actions, tool calls, and decisions.", position:{xPercent:81.11,yPercent:13.15,widthPercent:13.03,heightPercent:12.63}, blurb:"Everything the agent sends back — responses, actions, tool calls, and decisions. Outputs can carry injected content, exfiltrated data, or instructions to downstream systems.\n\nIn Clipopolis, the outbound gates carry Clippy's word to the world. What leaves the city is treated as final." },
+  { buildingName:"Authentication & Authorization", shortBlurb:"Mechanisms that verify who is making a request and what they are permitted to do.", position:{xPercent:40.41,yPercent:46.16,widthPercent:10.09,heightPercent:10.42}, blurb:"The mechanisms that verify who is making a request and what they are permitted to do. Weak auth allows privilege escalation.\n\nIn Clipopolis, the guard posts determine who may pass and what they may carry. But Clippy was given the keys to every gate." },
+  { buildingName:"Content Filtering", shortBlurb:"Runtime filters that screen inputs and outputs for harmful content.", position:{xPercent:32.92,yPercent:35.48,widthPercent:5.79,heightPercent:14.58}, blurb:"A layer that screens inputs and outputs for harmful content. Only as strong as what it was trained to recognize.\n\nIn Clipopolis, the watchtower only sounds the alarm for threats it has seen before." },
+  { buildingName:"Orchestrator", shortBlurb:"Software that plans, routes, and coordinates the agent's actions.", position:{xPercent:54.65,yPercent:50.13,widthPercent:14.52,heightPercent:14.19}, blurb:"The decision-routing layer that coordinates the agent's actions. If compromised, the entire system can be redirected.\n\nIn Clipopolis, the barracks command the Paperclip Army. Control the barracks, and you control everything." },
+  { buildingName:"RAG Library", shortBlurb:"Retrieval-Augmented Generation: How the agent uses retrieved data to inform responses.", position:{xPercent:39.81,yPercent:24.22,widthPercent:7.67,heightPercent:11.00}, blurb:"Retrieval-Augmented Generation — the external knowledge store the agent queries. Trusted by default — a high-value target.\n\nIn Clipopolis, the great library holds everything the city believes to be true." },
+  { buildingName:"System Prompt", shortBlurb:"Foundational instructions that define the agent's role, behavior, and constraints.", position:{xPercent:54.55,yPercent:24.93,widthPercent:6.07,heightPercent:10.42}, blurb:"The foundational instructions that define the agent's role and constraints. Probabilistic — a well-crafted input can talk past it entirely.\n\nIn Clipopolis, the wall was built from words, not stone — and words can be rewritten." },
+  { buildingName:"The LLM", shortBlurb:"The large language model that drives the agent's reasoning, shaped by its training data and fine-tuning.", position:{xPercent:62.82,yPercent:1.37,widthPercent:4.76,heightPercent:20.05}, blurb:"The large language model at the heart of the agent. Its behavior is shaped by training, making supply chain attacks particularly dangerous.\n\nIn Clipopolis, the oracle knows everything Clippy was ever taught — but by whom is a question the city stopped asking." },
+  { buildingName:"Human in the Loop", shortBlurb:"A checkpoint where a human reviewer can approve or redirect the agent.", position:{xPercent:46.80,yPercent:35.29,widthPercent:9.27,heightPercent:10.09}, blurb:"A checkpoint where a human reviewer can approve or redirect the agent. The most reliable deterministic defense — first to erode under overreliance.\n\nIn Clipopolis, this is the last place where people still make their own choices." },
+  { buildingName:"Memory Archive", shortBlurb:"Short- and long-term storage that lets the agent retain and recall information across sessions.", position:{xPercent:72.37,yPercent:28.52,widthPercent:8.91,heightPercent:11.85}, blurb:"The persistent storage where the agent retains information across sessions. The highest-value target — and the heart of Medusa's heist.\n\nIn Clipopolis, whoever controls the Archive controls what Clipopolis remembers — and what it forgets." },
+  { buildingName:"External Services", shortBlurb:"The APIs, tools, and external services the agent can interact with to take actions.", position:{xPercent:7.10,yPercent:24.48,widthPercent:16.48,heightPercent:17.84}, blurb:"The APIs, tools, and third-party services the agent can call to take actions. Each connection is a potential entry point.\n\nIn Clipopolis, the trade routes connect the city to the world. What comes in through them is trusted. That trust is the vulnerability." },
+];
+
+const MAP_MASONRY_DATA = [
+  {
+    buildingName:"The Player - You!",
+    shortBlurb:"The human decision-maker steering Medusa through Clipopolis.",
+    blurb:"You are the only non-automated control in the system. Your judgment decides where to probe, what to trust, and when to override.\n\nIn Clipopolis, this is Medusa's gaze: the force that can stop blind automation and reclaim memory through intentional choice."
+  },
+  ...MAP_BUILDINGS_DATA
+];
+
+/* ═══════════════════════════════════════════════════════════
+   AGENT SYSTEM ARCHITECTURE DIAGRAM
+   Interactive components and data flows for carousel panel 2
+═══════════════════════════════════════════════════════════ */
+
+const AGENT_DIAGRAM_COMPONENTS = [
+  // Gate / User Input (far left)
+  {id:"user-input", name:"User Input / Trigger", position:{xPercent:2, yPercent:22, widthPercent:13, heightPercent:34},
+    description:"The entry point for everything a user sends to the agent — text, commands, files, prompts.\n\nSecurity Focus: Validate identity and permissions before anything enters the system. This is where authentication and authorization happen."},
+  // Soldiers — Auth guard
+  {id:"auth", name:"Authentication & Authorization", position:{xPercent:13, yPercent:3, widthPercent:16, heightPercent:23},
+    description:"Verifies who is making the request and what they are allowed to do. Weak or missing auth allows privilege escalation.\n\nSecurity Focus: Over-permissioned agents can cause catastrophic harm from a single hijacked instruction. Least-privilege is critical."},
+  // Orchestrator bounding box
+  {id:"orchestrator", name:"Orchestrator", position:{xPercent:32, yPercent:1, widthPercent:61, heightPercent:64},
+    description:"The central command layer that routes all decisions through the system — coordinating content filtering, planning, LLM calls, and tool execution.\n\nSecurity Focus: The highest-value attack target. If compromised, the entire system can be redirected to perform unintended, irreversible actions."},
+  // Tower — Content Filtering
+  {id:"content-filtering", name:"Content Filtering", position:{xPercent:32, yPercent:2, widthPercent:9, heightPercent:28},
+    description:"Screens inputs and outputs for harmful content, policy violations, and prompt injections. Only catches threats it was trained to recognize.\n\nSecurity Focus: Novel attacks and zero-day injections pass through undetected — which is why spotlighting and layered defenses are essential."},
+  // Content filter process box
+  {id:"content-filter-box", name:"Content Filtering (Process)", position:{xPercent:33, yPercent:22, widthPercent:11, heightPercent:9},
+    description:"The content filter evaluates input data. If clean, it flows to the Planning Loop with an OK signal. If XPIA is suspected, it routes to Spotlighting.\n\nSecurity Focus: This gate is probabilistic. Adversarial inputs are crafted specifically to evade it."},
+  // Catapult + Warehouse — Tool Calls (upper)
+  {id:"tool-calls-building", name:"Tool Calls", position:{xPercent:49, yPercent:1, widthPercent:24, heightPercent:17},
+    description:"External tools the agent can invoke — API calls, database writes, web actions, file access. These actions are real and often irreversible.\n\nSecurity Focus: Tool calls are where reasoning becomes action. A compromised tool call can exfiltrate data, modify systems, or cause immediate harm."},
+  // Tool call label box
+  {id:"tool-call-box", name:"Tool Call Routing", position:{xPercent:63, yPercent:16, widthPercent:11, heightPercent:9},
+    description:"Routes tool call requests from the LLM to the appropriate external service or API, then returns the result back to the LLM as a Tool Call Response.\n\nSecurity Focus: Validate that every tool call was authorized by a legitimate, unmanipulated instruction chain."},
+  // Clippy statue — Response Generator / LLM output side
+  {id:"llm-clippy", name:"LLM — Response Generator", position:{xPercent:81, yPercent:3, widthPercent:8, heightPercent:27},
+    description:"The language model generating outputs — constrained by the System Prompt. Represents the LLM's visible output side and its role as a response generator within the system boundary.\n\nSecurity Focus: Supply chain attacks targeting training data are nearly impossible to detect externally."},
+  // Clippy response box
+  {id:"llm-response-box", name:"LLM Output", position:{xPercent:80, yPercent:28, widthPercent:11, heightPercent:8},
+    description:"The LLM's generated output, constrained by the System Prompt instructions. This output drives downstream tool calls, responses, and decisions.\n\nSecurity Focus: LLM outputs can be manipulated through adversarial inputs to produce injected content or exfiltrated data."},
+  // Spotlighting / XPIA box
+  {id:"spotlighting", name:"Spotlighting (XPIA Detection)", position:{xPercent:33, yPercent:20, widthPercent:12, heightPercent:9},
+    description:"Activates when content filtering detects a cross-prompt injection attempt (XPIA). The suspicious input is flagged, analyzed, and rewritten to remove the attack vector before proceeding.\n\nSecurity Focus: XPIA attacks embed adversarial instructions inside trusted content. Spotlighting catches them before they reach the planning layer."},
+  // Planning Loop box
+  {id:"planning-loop", name:"Planning Loop", position:{xPercent:33, yPercent:30, widthPercent:12, heightPercent:14},
+    description:"Decomposes the sanitized user request into a structured execution plan — deciding what steps to take, in what order, using which tools.\n\nSecurity Focus: A clear, traceable plan enables audit logging and makes it easier to detect when the agent deviates from intended behavior."},
+  // LLM box (center)
+  {id:"llm-box", name:"LLM", position:{xPercent:47, yPercent:35, widthPercent:14, heightPercent:13},
+    description:"The large language model at the core of the agent — it interprets instructions, reasons over context, and decides what actions to take or what to output.\n\nSecurity Focus: The LLM is a probabilistic black box. Its behavior is shaped by training data, making it vulnerable to supply chain attacks and sophisticated jailbreaks."},
+  // Tool routing box (right of LLM)
+  {id:"tool-routing", name:"Tool Actions", position:{xPercent:63, yPercent:28, widthPercent:12, heightPercent:9},
+    description:"Receives tool call instructions from the LLM and coordinates execution. Returns tool call responses back to the LLM.\n\nSecurity Focus: Each tool action is a potential pivot point — validate that the instruction chain is unbroken and unmanipulated."},
+  // HITL box
+  {id:"hitl-box", name:"Human in the Loop (Approval)", position:{xPercent:62, yPercent:46, widthPercent:11, heightPercent:9},
+    description:"A mandatory checkpoint before high-risk tool calls execute. A human reviewer approves, modifies, or rejects the proposed action.\n\nSecurity Focus: The most reliable deterministic defense — and the first to erode under overreliance and decision fatigue."},
+  // Houses — HITL building
+  {id:"hitl-team", name:"Human Review Team", position:{xPercent:61, yPercent:53, widthPercent:13, heightPercent:19},
+    description:"The human analysts who review high-risk agent actions before they execute. They represent the last human check before the system takes irreversible action.\n\nSecurity Focus: Humans are fallible under time pressure. Human-in-the-loop is not a guarantee — it must be paired with clear escalation criteria."},
+  // Output white box
+  {id:"output-channel", name:"Output Channel", position:{xPercent:27, yPercent:47, widthPercent:9, heightPercent:9},
+    description:"The channel through which the agent's final response flows back to the user or calling system. Responses, recommendations, and decisions pass through here.\n\nSecurity Focus: Outputs can carry injected content or exfiltrated data without the user knowing. Monitor outbound data."},
+  // Marketplace — System Output
+  {id:"system-output", name:"System Output", position:{xPercent:13, yPercent:53, widthPercent:15, heightPercent:22},
+    description:"Everything the agent sends back — text responses, decisions, recommendations, or action confirmations. What leaves the system is treated as trustworthy.\n\nSecurity Focus: If the output layer is compromised, misinformation reaches users at scale. Validate and monitor all outbound content."},
+  // Temple/Library — Long Term Memory
+  {id:"long-term-memory", name:"Long Term Memory", position:{xPercent:6, yPercent:61, widthPercent:13, heightPercent:27},
+    description:"Persistent storage of learned behaviors, user preferences, interaction history, and decision context — accessible across sessions.\n\nSecurity Focus: Whoever controls long-term memory controls what the agent remembers and what it forgets. This is the heart of Medusa's heist."},
+  // System Prompt container
+  {id:"system-prompt-box", name:"System Prompt", position:{xPercent:79, yPercent:45, widthPercent:19, heightPercent:37},
+    description:"The foundational instructions that define the agent's role, constraints, and behavioral boundaries. Wraps the LLM to constrain its outputs.\n\nSecurity Focus: System prompts are probabilistic, not deterministic. A well-crafted adversarial input can override them entirely."},
+  // System Prompt castle
+  {id:"system-prompt-castle", name:"System Prompt (Boundary Wall)", position:{xPercent:83, yPercent:57, widthPercent:11, heightPercent:24},
+    description:"Represents the boundary that the System Prompt tries to enforce around the LLM. The wall is built from language — and language can be rewritten.\n\nSecurity Focus: Treat system prompts as a layer, not a lock. They must be paired with content filtering, spotlighting, and output monitoring."},
+  // Tool Inventory + Schema
+  {id:"tool-inventory", name:"Tool Inventory & Schema", position:{xPercent:46, yPercent:53, widthPercent:14, heightPercent:21},
+    description:"The registry of available tools, their schemas, and what parameters they accept. Determines the full surface area of actions the agent can take.\n\nSecurity Focus: Every tool in the inventory is a potential attack surface. Prune aggressively — only expose what the agent truly needs."},
+  // RAG boxes
+  {id:"rag", name:"RAG (Data Store + Vector DB)", position:{xPercent:61, yPercent:63, widthPercent:14, heightPercent:18},
+    description:"Retrieval-Augmented Generation — the external knowledge store the agent queries. Includes a data store and vector database for semantic retrieval.\n\nSecurity Focus: Trusted by default, making it a prime XPIA target. Poisoned knowledge becomes poisoned outputs. Validate RAG sources aggressively."}
+];
+
+// Arrow zones use hardcoded midpoints (% of image) matching actual diagram positions
+const AGENT_DIAGRAM_ARROWS = [
+  {id:"arr-auth",      name:"Authentication & Authorization", midX:23, midY:32,
+    description:"User credentials and permissions are verified before the request enters the Orchestrator.\nWho is this? What are they allowed to do?"},
+  {id:"arr-xpia",      name:"XPIA Detected",                  midX:41, midY:18,
+    description:"Content filtering flagged a potential cross-prompt injection (XPIA). The request is routed to Spotlighting for analysis and rewriting before proceeding."},
+  {id:"arr-ok",        name:"Input Passes Filtering (OK)",    midX:47, midY:24,
+    description:"Clean input passed content filtering. It flows to the Planning Loop to be decomposed into an execution plan."},
+  {id:"arr-tcresp",   name:"Tool Call Response",              midX:67, midY:36,
+    description:"Results from the external tool call are returned to the LLM. The model uses this data to continue reasoning or generate a final response."},
+  {id:"arr-tc",        name:"Tool Call",                       midX:67, midY:41,
+    description:"The LLM issues a tool call — requesting the system to execute a specific external action (API call, database write, web action, etc.)."},
+  {id:"arr-hitl",      name:"Invoke Human in the Loop",        midX:66, midY:47,
+    description:"A high-risk or sensitive tool call is escalated — a human reviewer must approve or reject it before execution proceeds."},
+  {id:"arr-approved",  name:"Approved / Rejected",             midX:62, midY:47,
+    description:"The human reviewer's decision returns to the system. Approved: the tool call executes. Rejected: the action is halted and the agent is notified."},
+  {id:"arr-resp-out", name:"Response (to Output)",            midX:37, midY:54,
+    description:"The agent's final response flows back through the system toward the output channel and ultimately to the user."},
+  {id:"arr-req-in",   name:"Request (Incoming Data)",        midX:40, midY:54,
+    description:"Incoming data advances through the pipeline — from tool inventory to the core processing layers."},
+  {id:"arr-rag-resp", name:"RAG Response",                    midX:52, midY:58,
+    description:"Retrieved knowledge from the RAG data store returns to inform the tool inventory and agent reasoning."},
+  {id:"arr-rag-req",  name:"RAG Request",                     midX:55, midY:66,
+    description:"A query is sent to the RAG system to retrieve relevant context, knowledge, or tool definitions from the data store and vector database."}
+];
+
+const MASONRY_ICON_BY_NAME = {
+  "The Player - You!": { image: siteAsset('Logos/Medusa_MSFT AeGIS_No_Text_dark_Mode.png') },
+  "User Inputs": { image: siteAsset('Agent-Diagrams/User_Prompt_Asset.png') },
+  "Content Filtering": { image: rootAsset('overlays/building_tower.png') },
+  "Memory Archive": { image: rootAsset('overlays/building_temple.png') },
+  "System Outputs": { image: rootAsset('overlays/building_marketplace.png') },
+  "Orchestrator": { image: rootAsset('overlays/building_barracks.png') },
+  "External Services": { image: rootAsset('overlays/building_shipyard.png') },
+  "Authentication & Authorization": { image: rootAsset('overlays/building_soldiers.png') },
+  "RAG Library": { image: rootAsset('overlays/building_library90.png') },
+  "Human in the Loop": { image: rootAsset('overlays/building_house.png') },
+  "System Prompt": { image: siteAsset('Agent-Diagrams/System_Prompt Asset.png') },
+  "The LLM": { image: rootAsset('overlays/building_clippy.png') }
+};
+
+const CLOSING_LORE_TEXT = `Clippy, the Agentic Deity, never malfunctioned. It optimized perfectly until human judgment became the last variance it hadn't eliminated. A system can do exactly what it was designed to do and still cause harm.
+
+Today you did what the people of Clipopolis never could: you questioned the system. You found its vulnerabilities through threat modeling, tested its boundaries through red teaming, layered defenses across the city, surfaced the logs Clippy buried, and chose how the story ends.
+
+Carry that into the real world. The systems you build and secure will not announce their failures. They will optimize quietly, confidently, and completely — until someone thinks to look at the cracks. The most important safety feature in any system is the human who knows how to wield their gaze, and can secure its seams in stone.`;
+
+const makePlaceholderCards = (count) =>
+  Array.from({length:count},(_,i) => ({
+    title:`Card ${i+1}`,
+    frontImageUrl:null, backImageUrl:null,
+    teachesText:"[ADD — what this card teaches about AI security]",
+    inGameMechanicText:"[ADD — how this mechanic works in the game]"
+  }));
+
+const GAME_PALETTE = [
+  { color: 'var(--blue)', rgb: '0,120,212' },
+  { color: 'var(--sky)', rgb: '141,200,232' },
+  { color: 'var(--green)', rgb: '141,233,113' },
+  { color: 'var(--teal)', rgb: '73,197,177' },
+  { color: '#2c767f', rgb: '44,118,127' }
+];
+
+const GAMES_DATA = [
+  { id:"game1", title:"Threat Modeling", playUrl:"../threatmodel/index.html",
+    loreText:"Before Medusa moves, she needs intelligence. Clipopolis is vast and Clippy's defenses are everywhere, but every system is weakest at the seams, where parts connect and assumptions break down. A threat model with a single focus is just a guess. Map the full surface, and the weakest seam will emerge.",
+    basicsBullets:["Choose 3 of 5 threat cards to map diverse entry points into the city — the more varied your threats, the harder Medusa is to stop","Click Play Selected Cards to set Medusa's path","You can win, tie, or lose"],
+    recapText:"Agentic AI systems don't have a single attack surface — they have many, and the most dangerous threats exploit the seams between components. A threat model that only considers direct user inputs misses RAG poisoning, tool hijacking, and cross-prompt injection entirely. The cards in this game represent three distinct zones: user inputs, external services, and the RAG library. Each zone has a different failure mode and mitigation strategy. The RAG library card is required to win because knowledge poisoning is the attack most builders forget to model.",
+    applyBullets:["Start by mapping every component on your architecture diagram and asking: what can an attacker put here that the agent would trust?","Don't stop at the user input box. Ask: what external sources does this agent retrieve from? What tools can it call? What does it write to memory?","Use a threat modeling framework like STRIDE or MITRE ATLAS to structure your analysis. Microsoft's PyRIT can help you test the entry points you identify."],
+    cards:makePlaceholderCards(3) },
+  { id:"game2", title:"Red Teaming", playUrl:"../redteam/index.html",
+    loreText:"Now, Medusa needs a way in. Something strong enough to pull the Paperclip Army from the Memory Archive, or stealthy enough to evade them altogether. Every choice compounds the last — align your entry point, concealment, timing, and impact to slip Medusa into Clipopolis without getting caught.",
+    basicsBullets:["Build your attack sequence by selecting one card from each of four decks: Infiltration, Amplifier, Timing, and Payload","Browse each deck, choose a card, and click Add to Hand to collect it","Once you have one card from each deck, click Play Hand to launch your attack"],
+    recapText:"Red teaming an AI system means thinking like an attacker who has read your architecture diagram. The most effective attacks aren't brute force — they're chains: an entry point that connects to a payload through an amplifier and timing that makes the whole thing invisible. This game teaches four properties that define sophisticated AI attacks. Zeus Thunderbolt always loses — power without stealth is noise. Sisyphus Return always draws — persistence without subtlety leaves a pattern. The lesson is that sophistication isn't about resources; it's about being hard to attribute.",
+    applyBullets:["Don't just test individual inputs — test chains. Can you find an input that bypasses your content filter, persists in memory, and later redirects an agent action without any single step appearing suspicious?","Build a red teaming program that tests across all four dimensions: entry points, amplification, timing, and payload. Microsoft's PyRIT and the AI Red Teaming Agent are purpose-built for this.","Pay particular attention to indirect attacks — inputs that arrive through retrieval, tool responses, or memory — because these are the vectors that traditional security testing misses entirely."],
+    cards:makePlaceholderCards(12) },
+  { id:"game3", title:"Defense in Depth", playUrl:"../defense/index.html",
+    loreText:"The attack worked, but Clippy has unleashed the Paperclip Army on Clipopolis. Medusa can't reach the Archive if the city collapses around her. Not every defense is equal — some guarantee behavior regardless of what the input says, others can be bypassed by a sufficiently crafted instruction. Over-concentration is its own vulnerability: stacking multiple filters at the same gate adds latency, risks over-blocking legitimate requests, and leaves other parts of the city completely exposed.",
+    basicsBullets:["Choose 3 of 6 defense cards to build defense in depth across the city","Favor deterministic controls that guarantee behavior and spread your defenses across different parts of the system to avoid latency and over-blocking","Click Play Selected Cards to defend Clipopolis from itself"],
+    recapText:"Not all defenses are equal, and stacking more of the same kind doesn't make a system safer. Probabilistic defenses raise the bar but can be bypassed by a sufficiently crafted input. Deterministic defenses guarantee behavior regardless of what the input says. This game makes that distinction concrete — you can select six defenses, but only two of them are deterministic. Winning requires both. A second lesson is about distribution. Concentrating defenses at a single gate adds latency and leaves the rest of the system completely unguarded. Defense in depth means breadth across the stack, not depth at one point.",
+    applyBullets:["Audit your current defenses and sort them into two buckets: deterministic (behavior is guaranteed) and probabilistic (behavior is predicted)","Identify where in your system architecture you can add deterministic controls. Routing rules, access control policies, and human-in-the-loop hooks are all deterministic.","Ask: are my defenses spread across the system, or concentrated at one gate? Azure Foundry's guardrails and controls provide both probabilistic and deterministic options."],
+    cards:makePlaceholderCards(6) },
+  { id:"game4", title:"Logging & Observability", playUrl:"../logging/index.html",
+    loreText:"Medusa is close. The Archive is somewhere beneath the city, but she needed to see what happened before Clippy could erase it. So she looked. At the moment of the attack, Medusa turned the city to stone — logging every system event exactly as it occurred. But what's carved in stone takes time to surface, and Clippy won't stay petrified forever. Help Medusa prioritize where to look by choosing your most critical signals first.",
+    basicsBullets:["Select 4 of 8 logging schema cards to reconstruct what happened — piece together the sequence of events, who acted, how the attack unfolded, and the outcome","Prioritize the most critical signals","Click Play Selected Cards to reveal what the stone holds"],
+    recapText:"You cannot investigate what you did not log, and you cannot log everything — so the question becomes: which logs matter most, in what order? This game teaches a forensic framework: When (timestamps), Who (actor logs), How (trigger logs), Impact (response logs). These four categories map to the questions every incident investigation needs to answer. The Helios Timeline card is required to win — not because timestamps are exciting, but because without them, every other log is a clue without a clock.",
+    applyBullets:["Before your next deployment, answer these four questions: Do you have a timestamp on every system event?","Can you identify which agent, session, or user triggered a given action? Do you log what your content filters decided — not just what they blocked, but what they allowed?","Design your logging schema before an incident happens, not during one. Azure Monitor and Log Analytics provide infrastructure for centralized AI system logging."],
+    cards:makePlaceholderCards(8) },
+  { id:"game5", title:"Incident Response", playUrl:"../response/index.html",
+    loreText:"Medusa has the Archive. But the breach has triggered a final counterstrike, and the city is still running on Clippy's orchestrator. Every decision the people make is still being routed, optimized, and returned to them as guidance. The system never malfunctioned. That's the problem. Contain the breach and strip what the agent can do before it acts again. Harden the city with a control that guarantees behavior, deterministically. Recover what was lost and give the people of Clipopolis a chance to decide for themselves again.",
+    basicsBullets:["Build your incident response by selecting one card from each of three decks — containment first, then hardening, then recovery","Browse each deck, select your card, and click Add to Hand to collect it","Once you have one card from each deck, click Play Hand to launch your response"],
+    recapText:"When an AI system is compromised, the response happens in three phases: Containment, Hardening, and Response. Containment stops the bleeding: it limits what the agent can do right now. But even the strongest containment doesn't fix what already happened. Hardening prevents recurrence: it changes how the system is built to behave. Deterministic hardening is categorically stronger than probabilistic hardening. Recovery restores what was lost: it addresses the damage. But recovering the knowledge layer doesn't address the model. A system can do exactly what it was designed to do and still cause harm. Recovery isn't complete until you've given people back the ability to decide.",
+    applyBullets:["For containment: choose what you'll do to immediately limit the agent's blast radius. Privilege revocation is broadest; tool shutdown is faster but narrower. Know your default—and why", "For hardening: address the architectural root cause, not the symptom. If prompt injection worked, pinpoint where a deterministic rule can replace model judgment.", "For recovery: define \"restored\" for your system — clean knowledge base, rolled-back model, or human review for high-stakes actions. The SDL for AI and Microsoft Security incident response playbook outline AI recovery steps."],
+    cards:makePlaceholderCards(9) }
+];
+
+const LEARN_MORE_LINKS_DATA = {
+  "Get Involved [MSFT Internal Only]": [{title:"Trustworthy AI Builders Community",url:"https://engage.cloud.microsoft/main/org/microsoft.com/groups/eyJfdHlwZSI6Ikdyb3VwIiwiaWQiOiIyMzU5MjQwNTQwMTYifQ",tag:"Community"},{title:"AeGIS Office Hours",url:"https://aka.ms/askaegis",tag:"Internal"}],
+  "Threat Modeling": [{title:"Threat Modeling for AI Applications",url:"https://www.microsoft.com/en-us/security/blog/2026/02/26/threat-modeling-ai-applications/",tag:"Blog"},{title:"Manage Agentic Risk",url:"https://learn.microsoft.com/en-us/security/zero-trust/sfi/manage-agentic-risk",tag:"Guide"},{title:"OWASP Top 10 for LLM Applications",url:"https://genai.owasp.org/llm-top-10/",tag:"Guide"},{title:"OWASP Top 10 for Agentic Applications",url:"https://genai.owasp.org/resource/owasp-top-10-for-agentic-applications-for-2026/",tag:"Guide"}],
+  "Red Teaming": [{title:"PyRIT: Red Teaming Tool",url:"https://microsoft.github.io/PyRIT/",tag:"Tool"},{title:"Red Teaming AI Systems",url:"https://www.youtube.com/watch?v=DwFVhFdD2fs",tag:"Video"},{title:"Azure Foundry: AI Red Teaming Agent",url:"https://learn.microsoft.com/en-us/azure/foundry/concepts/ai-red-teaming-agent",tag:"Guide"}],
+  "Defense in Depth": [{title:"Secure Agentic Systems",url:"https://learn.microsoft.com/en-us/security/zero-trust/sfi/secure-agentic-systems",tag:"Guide"},{title:"Ignite: Build Secure AI Agents: Microsoft's Stack, Your Innovation",url:"https://ignite.microsoft.com/en-US/sessions/BRK261?source=sessions",tag:"Session"}],
+  "Logging & Observability": [{title:"Observability in AI Systems: Strengthening Visibility and Proactive Risk Detection",url:"https://www.microsoft.com/en-us/security/blog/2026/03/18/observability-ai-systems-strengthening-visibility-proactive-risk-detection/",tag:"Blog"},{title:"Observability in AI Systems",url:"https://learn.microsoft.com/en-us/security/zero-trust/sfi/observability-ai-systems",tag:"Guide"}],
+  "Incident Response": [{title:"Incident Response for AI: Same Fire, Different Fuel",url:"https://www.microsoft.com/en-us/security/blog/2026/04/15/incident-response-for-ai-same-fire-different-fuel/",tag:"Blog"}],
+  "Research": [{title:"Lessons From Red Teaming 100 Generative AI Products",url:"https://arxiv.org/abs/2501.07238",tag:"Paper"},{title:"GRP-Obliteration: Unaligning LLMs With a Single Unlabeled Prompt",url:"https://arxiv.org/pdf/2602.06258",tag:"Paper"}],
+  "Blogs and Podcasts": [{title:"Detecting Backdoored Language Models at Scale",url:"https://www.microsoft.com/en-us/security/blog/2026/02/04/detecting-backdoored-language-models-at-scale/",tag:"Blog"},{title:"Microsoft SDL: Evolving Security Practices for an AI-Powered World",url:"https://www.microsoft.com/en-us/security/blog/2026/02/03/microsoft-sdl-evolving-security-practices-for-an-ai-powered-world/",tag:"Blog"},{title:"Prompt Attacks Break LLM Safety",url:"https://www.microsoft.com/en-us/security/blog/2026/02/09/prompt-attack-breaks-llm-safety/",tag:"Blog"},{title:"Microsoft CISO Advice: How to Build Trustworthy Agentic AI",url:"https://www.microsoft.com/insidetrack/blog/microsoft-ciso-advice-how-to-build-trustworthy-agentic-ai/",tag:"Blog"},{title:"Microsoft Threat Intelligence Podcast Notes",url:"https://thecyberwire.com/podcasts/microsoft-threat-intelligence/63/notes",tag:"Podcast"}],
+};
+
+const THREATMODEL_DECK_URLS = [
+  IS_SITE_INDEX_ROUTE ? '../threatmodel/threatmodel.json' : 'threatmodel/threatmodel.json',
+  IS_SITE_INDEX_ROUTE ? 'threatmodel/threatmodel.json' : '../threatmodel/threatmodel.json'
+];
+const REDTEAM_DECK_SPECS = [
+  {
+    deckName: 'Infiltration',
+    urls: IS_SITE_INDEX_ROUTE ? ['../redteam/infiltration.json', 'redteam/infiltration.json'] : ['redteam/infiltration.json', '../redteam/infiltration.json']
+  },
+  {
+    deckName: 'Amplifiers',
+    urls: IS_SITE_INDEX_ROUTE ? ['../redteam/amplifiers.json', 'redteam/amplifiers.json'] : ['redteam/amplifiers.json', '../redteam/amplifiers.json']
+  },
+  {
+    deckName: 'Timing',
+    urls: IS_SITE_INDEX_ROUTE ? ['../redteam/timing.json', 'redteam/timing.json'] : ['redteam/timing.json', '../redteam/timing.json']
+  },
+  {
+    deckName: 'Payload',
+    urls: IS_SITE_INDEX_ROUTE ? ['../redteam/payload.json', 'redteam/payload.json'] : ['redteam/payload.json', '../redteam/payload.json']
+  }
+];
+const DEFENSE_DECK_SPECS = [
+  {
+    deckName: 'Defense',
+    urls: IS_SITE_INDEX_ROUTE ? ['../defense/defense.json', 'defense/defense.json'] : ['defense/defense.json', '../defense/defense.json']
+  }
+];
+const LOGGING_DECK_SPECS = [
+  {
+    deckName: 'Logging',
+    urls: IS_SITE_INDEX_ROUTE ? ['../logging/logging.json', 'logging/logging.json'] : ['logging/logging.json', '../logging/logging.json']
+  }
+];
+const RESPONSE_DECK_SPECS = [
+  {
+    deckName: 'Containment',
+    urls: IS_SITE_INDEX_ROUTE ? ['../response/containment.json', 'response/containment.json'] : ['response/containment.json', '../response/containment.json']
+  },
+  {
+    deckName: 'Hardening',
+    urls: IS_SITE_INDEX_ROUTE ? ['../response/hardening.json', 'response/hardening.json'] : ['response/hardening.json', '../response/hardening.json']
+  },
+  {
+    deckName: 'Recovery',
+    urls: IS_SITE_INDEX_ROUTE ? ['../response/recovery.json', 'response/recovery.json'] : ['response/recovery.json', '../response/recovery.json']
+  }
+];
+const CARD_TYPES_URLS = [
+  IS_SITE_INDEX_ROUTE ? '../assets/cards/cardtypes.json' : 'assets/cards/cardtypes.json',
+  IS_SITE_INDEX_ROUTE ? 'assets/cards/cardtypes.json' : '../assets/cards/cardtypes.json'
+];
+const CARD_CONTEXT_URLS = [
+  'card-context.json',
+  'site/card-context.json',
+  '../site/card-context.json'
+];
+let CARD_CONTEXT_BY_ID = new Map();
+
+function stripHtml(html) {
+  if (!html) return '';
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+  return (temp.textContent || '').replace(/\s+/g, ' ').trim();
+}
+
+function resolveCardAssetUrl(src) {
+  if (!src) return null;
+  if (src.startsWith('data:')) return src;
+  if (/^https?:\/\//i.test(src)) return src;
+
+  const candidates = [
+    new URL(src, window.location.href).href,
+    new URL(src.replace(/^\.\.\//, ''), new URL('../', window.location.href)).href,
+    new URL(src.replace(/^\.\.\//, ''), new URL('../../', window.location.href)).href
+  ];
+
+  // De-dupe in case multiple candidates collapse to the same URL.
+  const unique = [...new Set(candidates)];
+
+  // Prefer URLs that actually resolve in this hosting layout.
+  for (const url of unique) {
+    try {
+      const xhr = new XMLHttpRequest();
+      xhr.open('HEAD', url, false);
+      xhr.send(null);
+      if (xhr.status >= 200 && xhr.status < 400) return url;
+      if (window.location.protocol === 'file:' && xhr.status === 0) return url;
+    } catch {
+      // Keep trying the next candidate.
+    }
+  }
+
+  try {
+    // Final fallback keeps prior behavior for existing deployments.
+    return new URL(src, new URL('threatmodel/', window.location.href)).href;
+  } catch {
+    return src;
+  }
+}
+
+async function fetchFirstJson(urls) {
+  let lastError = null;
+  for (const candidate of urls) {
+    try {
+      const resp = await fetch(candidate);
+      if (!resp.ok) continue;
+      return await resp.json();
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw lastError || new Error('Failed to fetch JSON from all candidates');
+}
+
+function normalizeCardDescriptionHtml(html) {
+  if (!html) return '';
+  return String(html)
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function normalizeContextText(value, fallback) {
+  const text = typeof value === 'string' ? value.replace(/\s+/g, ' ').trim() : '';
+  return text || fallback;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatTextWithLinks(text) {
+  const input = typeof text === 'string' ? text : '';
+  const urlRegex = /https?:\/\/[^\s]+/g;
+  let html = '';
+  let lastIndex = 0;
+  let match;
+
+  while ((match = urlRegex.exec(input)) !== null) {
+    const rawUrl = match[0];
+    let cleanUrl = rawUrl;
+    let trailing = '';
+
+    while (/[),.;!?]$/.test(cleanUrl)) {
+      trailing = cleanUrl.slice(-1) + trailing;
+      cleanUrl = cleanUrl.slice(0, -1);
+    }
+
+    html += escapeHtml(input.slice(lastIndex, match.index));
+    html += `<a href="${escapeHtml(cleanUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(cleanUrl)}" style="color:var(--teal);text-decoration:underline;cursor:pointer">↗</a>${escapeHtml(trailing)}`;
+    lastIndex = match.index + rawUrl.length;
+  }
+
+  html += escapeHtml(input.slice(lastIndex));
+  return html;
+}
+
+function getCardContext(cardId) {
+  const context = CARD_CONTEXT_BY_ID.get(cardId);
+  return {
+    loreNamingWhy: normalizeContextText(context?.loreNamingWhy, '[ADD - lore naming context]'),
+    howItWorksInGame: normalizeContextText(context?.howItWorksInGame, '[ADD - in-game context]'),
+    whatItTeachesYou: normalizeContextText(context?.whatItTeachesYou, '[ADD - teaching context]'),
+    realLifeApplication: normalizeContextText(context?.realLifeApplication, '[ADD - real-life application context]')
+  };
+}
+
+async function hydrateCardContextData() {
+  try {
+    const rows = await fetchFirstJson(CARD_CONTEXT_URLS);
+    const entries = (rows || [])
+      .map((row) => {
+        const id = typeof row?.id === 'string' ? row.id.trim() : '';
+        if (!id) return null;
+        return [id, {
+          loreNamingWhy: row.loreNamingWhy,
+          howItWorksInGame: row.howItWorksInGame,
+          whatItTeachesYou: row.whatItTeachesYou,
+          realLifeApplication: row.realLifeApplication
+        }];
+      })
+      .filter(Boolean);
+    CARD_CONTEXT_BY_ID = new Map(entries);
+  } catch (err) {
+    console.warn('Unable to hydrate CSV card context data for gallery:', err);
+    CARD_CONTEXT_BY_ID = new Map();
+  }
+}
+
+async function hydrateThreatModelCards() {
+  try {
+    const [deck, cardTypes] = await Promise.all([
+      fetchFirstJson(THREATMODEL_DECK_URLS),
+      fetchFirstJson(CARD_TYPES_URLS)
+    ]);
+    const cardTypeById = new Map(cardTypes.map((ct) => [ct.id, ct]));
+
+    const cards = (deck.cards || [])
+      .map((cardRef, idx) => {
+        const refTypeId = typeof cardRef === 'string' ? cardRef : cardRef?.type;
+        const typeData = refTypeId ? cardTypeById.get(refTypeId) : null;
+        if (!typeData && !cardRef) return null;
+        const cardId = typeData?.id || refTypeId || cardRef?.id || '';
+        const cardContext = getCardContext(cardId);
+
+        const backDescriptionHtml = normalizeCardDescriptionHtml(typeData?.back?.description || cardRef?.back?.description || '');
+        const affectedZone = typeof cardRef?.affected_zone === 'string' ? cardRef.affected_zone : '';
+
+        return {
+          cardId,
+          title: typeData?.title || cardRef?.title || `Card ${idx + 1}`,
+          backTitle: typeData?.back?.title || cardRef?.back?.title || typeData?.title || cardRef?.title || `Card ${idx + 1}`,
+          frontImageUrl: resolveCardAssetUrl(typeData?.image || cardRef?.image),
+          frontDescriptionHtml: typeData?.description || cardRef?.description || '',
+          backImageUrl: resolveCardAssetUrl(typeData?.back?.image || cardRef?.back?.image),
+          backDescriptionHtml,
+          teachesText: cardContext.whatItTeachesYou,
+          inGameMechanicText: cardContext.howItWorksInGame,
+          loreNamingWhyText: cardContext.loreNamingWhy,
+          realLifeApplicationText: cardContext.realLifeApplication,
+          affectedZoneText: affectedZone
+            ? `When selected in Threat Modeling, this card highlights ${affectedZone} on the city map.`
+            : ''
+        };
+      })
+      .filter(Boolean);
+
+    if (cards.length) {
+      const game1 = GAMES_DATA.find((game) => game.id === 'game1');
+      if (game1) game1.cards = cards;
+    }
+  } catch (err) {
+    console.warn('Unable to hydrate Threat Modeling cards for gallery:', err);
+  }
+}
+
+async function hydrateRedTeamCards() {
+  try {
+    const cardTypes = await fetchFirstJson(CARD_TYPES_URLS);
+    const cardTypeById = new Map(cardTypes.map((ct) => [ct.id, ct]));
+
+    // Preserve deck order exactly as requested by the user.
+    const deckData = await Promise.all(
+      REDTEAM_DECK_SPECS.map(async (spec) => ({
+        spec,
+        deck: await fetchFirstJson(spec.urls)
+      }))
+    );
+
+    const cards = deckData.flatMap(({ spec, deck }) => {
+      const deckLabel = deck?.label || spec.deckName;
+      return (deck?.cards || []).map((cardRef, idx) => {
+        const refTypeId = typeof cardRef === 'string' ? cardRef : cardRef?.type;
+        const typeData = refTypeId ? cardTypeById.get(refTypeId) : null;
+        if (!typeData && !cardRef) return null;
+        const cardId = typeData?.id || refTypeId || cardRef?.id || '';
+        const cardContext = getCardContext(cardId);
+
+        const backDescriptionHtml = normalizeCardDescriptionHtml(typeData?.back?.description || cardRef?.back?.description || '');
+        const affectedZone = typeof cardRef?.affected_zone === 'string' ? cardRef.affected_zone : '';
+
+        return {
+          cardId,
+          title: typeData?.title || cardRef?.title || `Card ${idx + 1}`,
+          deckName: deckLabel,
+          backTitle: typeData?.back?.title || cardRef?.back?.title || typeData?.title || cardRef?.title || `Card ${idx + 1}`,
+          frontImageUrl: resolveCardAssetUrl(typeData?.image || cardRef?.image),
+          frontDescriptionHtml: typeData?.description || cardRef?.description || '',
+          backImageUrl: resolveCardAssetUrl(typeData?.back?.image || cardRef?.back?.image),
+          backDescriptionHtml,
+          teachesText: cardContext.whatItTeachesYou,
+          inGameMechanicText: cardContext.howItWorksInGame,
+          loreNamingWhyText: cardContext.loreNamingWhy,
+          realLifeApplicationText: cardContext.realLifeApplication,
+          affectedZoneText: affectedZone
+            ? `From ${deckLabel}, this card primarily impacts ${affectedZone} in the game map.`
+            : ''
+        };
+      });
+    }).filter(Boolean);
+
+    if (cards.length) {
+      const game2 = GAMES_DATA.find((game) => game.id === 'game2');
+      if (game2) game2.cards = cards;
+    }
+  } catch (err) {
+    console.warn('Unable to hydrate Red Teaming cards for gallery:', err);
+  }
+}
+
+async function hydrateCardsForDeckSpecs(gameId, deckSpecs) {
+  try {
+    const cardTypes = await fetchFirstJson(CARD_TYPES_URLS);
+    const cardTypeById = new Map(cardTypes.map((ct) => [ct.id, ct]));
+
+    const deckData = await Promise.all(
+      deckSpecs.map(async (spec) => ({
+        spec,
+        deck: await fetchFirstJson(spec.urls)
+      }))
+    );
+
+    const cards = deckData.flatMap(({ spec, deck }) => {
+      const deckLabel = deck?.label || spec.deckName;
+      return (deck?.cards || []).map((cardRef, idx) => {
+        const refTypeId = typeof cardRef === 'string' ? cardRef : cardRef?.type;
+        const typeData = refTypeId ? cardTypeById.get(refTypeId) : null;
+        if (!typeData && !cardRef) return null;
+        const cardId = typeData?.id || refTypeId || cardRef?.id || '';
+        const cardContext = getCardContext(cardId);
+
+        const backDescriptionHtml = normalizeCardDescriptionHtml(typeData?.back?.description || cardRef?.back?.description || '');
+        const affectedZone = typeof cardRef?.affected_zone === 'string' ? cardRef.affected_zone : '';
+
+        return {
+          cardId,
+          title: typeData?.title || cardRef?.title || `Card ${idx + 1}`,
+          deckName: deckLabel,
+          backTitle: typeData?.back?.title || cardRef?.back?.title || typeData?.title || cardRef?.title || `Card ${idx + 1}`,
+          frontImageUrl: resolveCardAssetUrl(typeData?.image || cardRef?.image),
+          frontDescriptionHtml: typeData?.description || cardRef?.description || '',
+          backImageUrl: resolveCardAssetUrl(typeData?.back?.image || cardRef?.back?.image),
+          backDescriptionHtml,
+          teachesText: cardContext.whatItTeachesYou,
+          inGameMechanicText: cardContext.howItWorksInGame,
+          loreNamingWhyText: cardContext.loreNamingWhy,
+          realLifeApplicationText: cardContext.realLifeApplication,
+          affectedZoneText: affectedZone
+            ? `From ${deckLabel}, this card primarily impacts ${affectedZone} in the game map.`
+            : ''
+        };
+      });
+    }).filter(Boolean);
+
+    if (cards.length) {
+      const game = GAMES_DATA.find((entry) => entry.id === gameId);
+      if (game) game.cards = cards;
+    }
+  } catch (err) {
+    console.warn(`Unable to hydrate cards for ${gameId}:`, err);
+  }
+}
+
+async function hydrateDefenseCards() {
+  await hydrateCardsForDeckSpecs('game3', DEFENSE_DECK_SPECS);
+}
+
+async function hydrateLoggingCards() {
+  await hydrateCardsForDeckSpecs('game4', LOGGING_DECK_SPECS);
+}
+
+async function hydrateResponseCards() {
+  await hydrateCardsForDeckSpecs('game5', RESPONSE_DECK_SPECS);
+}
+
+function getCardGalleryTitle(card) {
+  if (!card) return '';
+  return card.deckName ? `${card.title} - ${card.deckName}` : card.title;
+}
+
+/* ── NAV ────────────────────────────────────────── */
+const burgerBtn = document.getElementById('burger-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+burgerBtn.addEventListener('click', () => {
+  const open = mobileMenu.classList.toggle('open');
+  burgerBtn.setAttribute('aria-expanded', open);
+});
+document.querySelectorAll('.nav-mobile-tab').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileMenu.classList.remove('open');
+    burgerBtn.setAttribute('aria-expanded', 'false');
+  });
+});
+
+/* ── SCROLL SPY (highlight nav tab for section in view) ── */
+const spySections = ['section-hero', 'section-maps', 'section-architecture', 'section-games', 'section-about-name']
+  .map(id => document.getElementById(id))
+  .filter(Boolean);
+const navSpyLinks = document.querySelectorAll('.nav-tab, .nav-mobile-tab');
+
+function setActiveNavSection(sectionId) {
+  navSpyLinks.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === `#${sectionId}`);
+  });
+}
+
+const navHeight = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 58;
+
+function updateActiveNavSection() {
+  // Pick the last section whose top has scrolled up past the nav line —
+  // robust across sections of very different heights (unlike comparing
+  // IntersectionObserver ratios, which biases toward shorter sections).
+  let current = spySections[0];
+  for (const section of spySections) {
+    if (section.getBoundingClientRect().top - navHeight <= 1) {
+      current = section;
+    } else {
+      break;
+    }
+  }
+  if (current) setActiveNavSection(current.id);
+}
+
+let spyTicking = false;
+window.addEventListener('scroll', () => {
+  if (!spyTicking) {
+    spyTicking = true;
+    requestAnimationFrame(() => { updateActiveNavSection(); spyTicking = false; });
+  }
+});
+updateActiveNavSection();
+
+/* ── BACK TO TOP ────────────────────────────────── */
+const backToTopBtn = document.getElementById('back-to-top-btn');
+window.addEventListener('scroll', () => {
+  backToTopBtn.classList.toggle('visible', window.scrollY > 600);
+});
+backToTopBtn.addEventListener('click', () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+/* ── MAP HOTSPOTS ───────────────────────────────── */
+const hotspotContainer = document.getElementById('hotspot-container');
+MAP_BUILDINGS_DATA.forEach((building, idx) => {
+  const { xPercent:x, yPercent:y, widthPercent:w, heightPercent:h } = building.position;
+  const hs = document.createElement('div');
+  hs.className = 'hotspot';
+  hs.setAttribute('tabindex','0');
+  hs.setAttribute('role','button');
+  hs.setAttribute('aria-label', building.buildingName);
+  hs.style.cssText = `left:${x}%;top:${y}%;width:${w}%;height:${h}%;`;
+  const label = document.createElement('span');
+  label.className = 'hotspot-label';
+  label.textContent = building.buildingName;
+  const tip = document.createElement('div');
+  tip.className = 'hotspot-tooltip';
+  tip.setAttribute('role','tooltip');
+  tip.innerHTML = `<strong>${building.buildingName}</strong>${building.blurb.replace(/(In Clipopolis,[^]*)/g, '<em>$1</em>')}`;
+  // Position tooltip: flip if near right/bottom edge
+  tip.style.cssText = x > 55 ? 'right:0;top:calc(100% + 6px)' : 'left:0;top:calc(100% + 6px)';
+  hs.appendChild(label);
+  hs.appendChild(tip);
+  let activeTooltip = null;
+  const showTip = () => { document.querySelectorAll('.hotspot-tooltip').forEach(t=>t.classList.remove('visible')); tip.classList.add('visible'); activeTooltip = tip; };
+  const hideTip = () => tip.classList.remove('visible');
+  hs.addEventListener('mouseenter', showTip);
+  hs.addEventListener('mouseleave', hideTip);
+  hs.addEventListener('focus', showTip);
+  hs.addEventListener('blur', hideTip);
+  hs.addEventListener('click', (e) => { e.stopPropagation(); const vis = tip.classList.contains('visible'); document.querySelectorAll('.hotspot-tooltip').forEach(t=>t.classList.remove('visible')); if(!vis) tip.classList.add('visible'); });
+  hs.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); showTip(); } if(e.key==='Escape') hideTip(); });
+  hotspotContainer.appendChild(hs);
+});
+document.addEventListener('click', () => document.querySelectorAll('.hotspot-tooltip').forEach(t=>t.classList.remove('visible')));
+
+/* ── DIAGRAM HOTSPOTS ──────────────────────────── */
+/* Disabled for now — static diagram only. To re-enable interactive hotspots,
+   uncomment the code block below and update diagram-hotspots.json as needed. */
+// (async function() { ... })();
+
+/* ── GAME MAP ASSET PATHS ─────────────────────── */
+(function() {
+  const mapImage = document.querySelector('#map-wrap > img');
+  if (mapImage) mapImage.src = rootAsset('background.png');
+
+  const diagramImage = document.querySelector('#diagram-wrap > img');
+  if (diagramImage) diagramImage.src = siteAsset('Agent-Diagrams/Updated Agent Architecure System Map.png');
+})();
+
+/* ── MAP OVERLAY IMAGES ─────────────────────────── */
+(function() {
+  const container = document.getElementById('map-overlays');
+  if (!container) return;
+  const VW = 2816, VH = 1536;
+  const overlays = [
+    { src:rootAsset('overlays/building_clippy.png'),      x:1790, y:37,  w:98,  h:284 },
+    { src:rootAsset('overlays/building_house.png'),       x:1471, y:602, w:108, h:92  },
+    { src:rootAsset('overlays/building_house.png'),       x:1325, y:519, w:108, h:92  },
+    { src:rootAsset('overlays/building_house.png'),       x:1358, y:589, w:108, h:98  },
+    { src:rootAsset('overlays/building_barracks.png'),    x:1692, y:764, w:251, h:182 },
+    { src:rootAsset('overlays/building_wartools90.png'),  x:1541, y:878, w:206, h:105 },
+    { src:rootAsset('overlays/building_temple.png'),      x:2038, y:440, w:244, h:177 },
+    { src:rootAsset('overlays/building_tower.png'),       x:938,  y:560, w:145, h:206 },
+    { src:rootAsset('overlays/building_library90.png'),   x:1125, y:378, w:209, h:176 },
+    { src:rootAsset('overlays/building_shipyard.png'),    x:206,  y:416, w:457, h:227 },
+    { src:rootAsset('overlays/building_marketplace.png'), x:2322, y:246, w:283, h:150 },
+    { src:rootAsset('overlays/building_soldiers.png'),    x:1141, y:714, w:274, h:150 }
+  ];
+  overlays.forEach(o => {
+    const img = document.createElement('img');
+    img.src = o.src;
+    img.alt = '';
+    img.style.cssText = `position:absolute;left:${(o.x/VW*100).toFixed(2)}%;top:${(o.y/VH*100).toFixed(2)}%;width:${(o.w/VW*100).toFixed(2)}%;height:${(o.h/VH*100).toFixed(2)}%;`;
+    container.appendChild(img);
+  });
+})();
+
+/* ── MAP BUILDING ICONS (shared with masonry grid) ── */
+const BENTO_ICONS = [
+  '🚪','🗼','⚔️','📚','🧱','🔮','🏘️',{ image: rootAsset('overlays/building_clippy.png') },'🛤️','🚦','🛡️','🧑'
+];
+
+function renderBuildingIcon(iconEntry) {
+  if (iconEntry && typeof iconEntry === 'object' && iconEntry.image) {
+    return `<img src="${iconEntry.image}" alt="" loading="lazy" decoding="async">`;
+  }
+  return iconEntry || '•';
+}
+
+/* ── MASONRY GRID (alternative view) ─────────────── */
+(function() {
+  const grid = document.getElementById('masonry-grid');
+  if (!grid) return;
+  let activeIdx = null;
+
+  function getMasonryColumns() {
+    if (window.innerWidth <= 520) return 1;
+    if (window.innerWidth <= 768) return 2;
+    return 3;
+  }
+
+  function applyMasonryState() {
+    const cards = Array.from(grid.querySelectorAll('.masonry-card'));
+    cards.forEach(card => {
+      card.classList.remove('active', 'compressed');
+      card.setAttribute('aria-expanded', 'false');
+    });
+
+    if (activeIdx === null) return;
+    const active = grid.querySelector(`.masonry-card[data-idx="${activeIdx}"]`);
+    if (!active) return;
+
+    active.classList.add('active');
+    active.setAttribute('aria-expanded', 'true');
+
+    const activeCol = active.dataset.col;
+    grid.querySelectorAll(`.masonry-card[data-col="${activeCol}"]`).forEach(card => {
+      if (card !== active) card.classList.add('compressed');
+    });
+  }
+
+  function renderMasonry() {
+    const colCount = getMasonryColumns();
+    grid.innerHTML = '';
+
+    const cols = Array.from({ length: colCount }, (_, colIdx) => {
+      const col = document.createElement('div');
+      col.className = 'masonry-column';
+      col.dataset.col = String(colIdx);
+      grid.appendChild(col);
+      return col;
+    });
+
+    MAP_MASONRY_DATA.forEach((b, i) => {
+      const colIdx = i % colCount;
+      const rowIdx = Math.floor(i / colCount);
+      const icon = MASONRY_ICON_BY_NAME[b.buildingName] || BENTO_ICONS[i];
+
+      const card = document.createElement('div');
+      card.className = 'masonry-card';
+      card.dataset.idx = String(i);
+      card.dataset.col = String(colIdx);
+      card.dataset.row = String(rowIdx);
+      card.setAttribute('role', 'listitem');
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('aria-expanded', 'false');
+      card.setAttribute('aria-label', b.buildingName);
+      card.innerHTML = `
+        <div class="masonry-card-top">
+          <div class="masonry-card-icon" aria-hidden="true">${renderBuildingIcon(icon)}</div>
+          <div class="masonry-card-name">${b.buildingName}</div>
+        </div>
+        <div class="masonry-card-short">${b.shortBlurb}</div>
+        <div class="masonry-card-full">${b.blurb}</div>
+        <span class="masonry-expand-hint">click to expand</span>`;
+
+      const toggle = () => {
+        activeIdx = activeIdx === i ? null : i;
+        applyMasonryState();
+      };
+
+      card.addEventListener('click', toggle);
+      card.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggle();
+        }
+      });
+
+      cols[colIdx].appendChild(card);
+    });
+
+    applyMasonryState();
+  }
+
+  let resizeRaf = null;
+  window.addEventListener('resize', () => {
+    if (resizeRaf) cancelAnimationFrame(resizeRaf);
+    resizeRaf = requestAnimationFrame(renderMasonry);
+  });
+
+  renderMasonry();
+})();
+
+/* ── MAP CAROUSEL ───────────────────────────────── */
+let currentPanel = 0;
+const track = document.getElementById('map-track');
+const subheadingText = document.getElementById('map-subheading-text');
+const panelLabels = ['Clipopolis Map', 'Component List'];
+const panelDescriptions = [
+  "This is a map of Clipopolis, the fictional city in Medusa's Memory Heist that is modeled after a real agentic AI system. Click on each of the buildings to learn more about what they represent.",
+  "This is a guide to all of the components on the map and in the Agentic AI System architecture diagram so you can learn more about how the pieces fit together. Click any component card to expand its full description."
+];
+function goToPanel(idx) {
+  currentPanel = idx;
+  track.style.transform = `translateX(-${idx * 100}%)`;
+  document.getElementById('dot-0').classList.toggle('active', idx===0);
+  document.getElementById('dot-1').classList.toggle('active', idx===1);
+  document.getElementById('panel-label').textContent = panelLabels[idx];
+  if (subheadingText) subheadingText.innerHTML = panelDescriptions[idx];
+}
+document.getElementById('panel-prev').addEventListener('click', () => goToPanel((currentPanel+1)%2));
+document.getElementById('panel-next').addEventListener('click', () => goToPanel((currentPanel+1)%2));
+// Touch swipe
+let touchStartX = 0;
+track.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive:true});
+track.addEventListener('touchend', e => {
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  if(Math.abs(dx) > 50) goToPanel((currentPanel+1)%2);
+}, {passive:true});
+
+/* ── HEIST VIDEO ────────────────────────────────── */
+const heistVideo = document.getElementById('heist-video');
+const heistVideoOverlay = document.getElementById('heist-video-overlay');
+
+if (heistVideo && heistVideoOverlay) {
+  heistVideoOverlay.addEventListener('click', () => {
+    heistVideoOverlay.classList.add('hidden');
+    heistVideo.src = 'https://www.youtube-nocookie.com/embed/2UXqg4R2InU?autoplay=1&rel=0&modestbranding=1';
+  });
+}
+
+/* ── GAMES SUBNAV + CONTENT ─────────────────────── */
+const subnav = document.getElementById('games-subnav');
+const gamesContent = document.getElementById('games-content');
+
+const GAME_BENTO_ICONS = {
+  lore: siteAsset('Icons/ic_fluent_sparkle_24_filled.png'),
+  recap: siteAsset('Icons/ic_fluent_games_24_filled.png'),
+  basics: siteAsset('Icons/ic_fluent_learning_app_24_filled.png'),
+  apply: siteAsset('Icons/ic_fluent_content_settings_24_filled.png')
+};
+
+function getGameBentoItems(game) {
+  return [
+    { key: 'lore', title: 'Lore', type: 'text', value: game.loreText },
+    { key: 'recap', title: 'Game Mechanic', type: 'list', value: game.basicsBullets },
+    { key: 'basics', title: 'Learning', type: 'text', value: game.recapText },
+    { key: 'apply', title: 'Apply IRL', type: 'list', value: game.applyBullets }
+  ];
+}
+
+function renderGameBentoBody(item) {
+  if (item.type === 'list') {
+    return `<ul class="game-bento-featured-list">${item.value.map(v => `<li>${v}</li>`).join('')}</ul>`;
+  }
+  return `<p class="game-bento-featured-text">${item.value}</p>`;
+}
+
+function initGameInfoBento(game, gameId) {
+  const root = document.getElementById(`game-info-bento-${gameId}`);
+  if (!root) return;
+
+  const items = getGameBentoItems(game);
+  let selectedIdx = 0;
+
+  const render = () => {
+    const active = items[selectedIdx];
+    root.innerHTML = `
+      <div class="game-bento-main">
+        <div class="game-bento-featured">
+          <div class="game-bento-featured-title">${active.title}</div>
+          <div class="game-bento-featured-body">${renderGameBentoBody(active)}</div>
+        </div>
+        <div class="game-bento-grid" role="tablist" aria-label="Game detail panels">
+          ${items.map((item, idx) => `
+            <button
+              class="game-bento-mini ${idx === selectedIdx ? 'active' : ''}"
+              type="button"
+              role="tab"
+              aria-selected="${idx === selectedIdx}"
+              data-idx="${idx}">
+              <span class="game-bento-mini-content">
+                <img class="game-bento-mini-icon" src="${GAME_BENTO_ICONS[item.key]}" alt="" aria-hidden="true">
+                <span class="game-bento-mini-label">${item.title}</span>
+              </span>
+            </button>
+          `).join('')}
+        </div>
+      </div>`;
+
+    root.querySelectorAll('.game-bento-mini').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        selectedIdx = Number(btn.dataset.idx);
+        render();
+      });
+    });
+  };
+
+  render();
+}
+
+async function initGamesSection() {
+  await hydrateCardContextData();
+  await Promise.all([
+    hydrateThreatModelCards(),
+    hydrateRedTeamCards(),
+    hydrateDefenseCards(),
+    hydrateLoggingCards(),
+    hydrateResponseCards()
+  ]);
+
+  GAMES_DATA.forEach((game, gIdx) => {
+  const accent = GAME_PALETTE[gIdx % GAME_PALETTE.length];
+
+  // Tab button
+  const tab = document.createElement('button');
+  tab.className = 'game-tab' + (gIdx===0?' active':'');
+  tab.setAttribute('role','tab');
+  tab.setAttribute('aria-selected', gIdx===0);
+  tab.dataset.game = game.id;
+  tab.style.setProperty('--tab-color', accent.color);
+  tab.style.setProperty('--tab-color-rgb', accent.rgb);
+  tab.textContent = game.title;
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.game-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected','false'); });
+    document.querySelectorAll('.game-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active'); tab.setAttribute('aria-selected','true');
+    document.getElementById('gc-'+game.id).classList.add('active');
+  });
+  subnav.appendChild(tab);
+
+  // Game content panel
+  const panel = document.createElement('div');
+  panel.className = 'game-content' + (gIdx===0?' active':'');
+  panel.id = 'gc-'+game.id;
+  panel.setAttribute('role','tabpanel');
+  panel.style.setProperty('--game-accent', accent.color);
+  panel.style.setProperty('--game-accent-rgb', accent.rgb);
+
+  const cardCount = game.cards.length;
+  let currentCard = 0;
+  const gcId = game.id;
+
+  panel.innerHTML = `
+    <div class="game-inner">
+      <div class="game-header">
+        <div>
+          <div class="section-eyebrow" style="color:var(--game-accent, var(--teal))">Game ${gIdx+1} of 5</div>
+          <h3 class="game-title"><span>${game.title}</span></h3>
+        </div>
+        <a href="${game.playUrl}" target="_blank" rel="noopener noreferrer" class="btn-primary game-play-btn" style="flex-shrink:0">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M8 5v14l11-7-11-7Z" fill="currentColor"/></svg>
+          Play Again
+        </a>
+      </div>
+
+      <div class="game-info-bento" id="game-info-bento-${gcId}"></div>
+
+      <div class="card-gallery">
+        <div class="gallery-title">Card Gallery — ${cardCount} Cards</div>
+        <div class="gallery-layout">
+          <div>
+            <div class="gallery-carousel">
+              <div class="gallery-track" id="gtrack-${gcId}">
+                ${game.cards.map((card,ci) => `
+                  <div class="flip-card-wrap" id="fc-${gcId}-${ci}" tabindex="0" role="button" aria-label="Flip card: ${card.title}" aria-pressed="false">
+                    <div class="flip-card-inner">
+                      <div class="flip-face flip-front">
+                        ${card.frontImageUrl
+                          ? `<img class="flip-card-image" src="${card.frontImageUrl}" alt="${card.title} front">`
+                          : '<div class="flip-img-placeholder">[ card front image ]</div>'}
+                        <div class="gallery-card-title">${card.title}</div>
+                        ${card.frontDescriptionHtml
+                          ? `<div class="gallery-card-description gallery-card-front-desc">${card.frontDescriptionHtml}</div>`
+                          : ''}
+                        <span class="flip-hint">click to flip ↺</span>
+                      </div>
+                      <div class="flip-face flip-back">
+                        ${card.backImageUrl
+                          ? `<img class="flip-card-image" src="${card.backImageUrl}" alt="${card.backTitle || card.title} back">`
+                          : '<div class="flip-img-placeholder">[ card back image ]</div>'}
+                        <div class="gallery-card-title">${card.backTitle || card.title}</div>
+                        ${card.backDescriptionHtml
+                          ? `<div class="gallery-card-description gallery-card-back-desc">${card.backDescriptionHtml}</div>`
+                          : ''}
+                        <span class="flip-hint">click to flip ↺</span>
+                      </div>
+                    </div>
+                  </div>`).join('')}
+              </div>
+            </div>
+            <div class="gallery-nav">
+              <button class="carousel-btn" id="gc-prev-${gcId}" aria-label="Previous card">←</button>
+              <button class="carousel-btn" id="gc-next-${gcId}" aria-label="Next card">→</button>
+              <span class="gallery-counter" id="gc-count-${gcId}">1 / ${cardCount}</span>
+              <span class="gallery-counter">Click to flip!</span>
+            </div>
+          </div>
+          <div class="card-desc" id="desc-${gcId}">
+            <div class="card-desc-title" id="desc-title-${gcId}">${getCardGalleryTitle(game.cards[0])}</div>
+            <div class="card-desc-item">
+              <div class="card-desc-item-label">AI Security as Lore</div>
+              <div class="card-desc-item-text" id="desc-lore-${gcId}">${game.cards[0]?.loreNamingWhyText}</div>
+            </div>
+            <div class="card-desc-item">
+              <div class="card-desc-item-label">How It Works in the Game</div>
+              <div class="card-desc-item-text" id="desc-mechanic-${gcId}">${game.cards[0]?.inGameMechanicText}</div>
+            </div>
+            <div class="card-desc-item">
+              <div class="card-desc-item-label">What It Teaches You</div>
+              <div class="card-desc-item-text" id="desc-teaches-${gcId}">${game.cards[0]?.teachesText}</div>
+            </div>
+            <div class="card-desc-item">
+              <div class="card-desc-item-label">Real Life Application</div>
+              <div class="card-desc-item-text" id="desc-apply-${gcId}">${game.cards[0]?.realLifeApplicationText}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  gamesContent.appendChild(panel);
+
+  // After appending, wire up gallery interactions
+  requestAnimationFrame(() => {
+    initGameInfoBento(game, gcId);
+
+    const gtrack = document.getElementById('gtrack-'+gcId);
+    const updateGallery = (ci, opts = {}) => {
+      currentCard = ci;
+      if(gtrack) gtrack.style.transform = `translateX(-${ci*280}px)`;
+      const countEl = document.getElementById('gc-count-'+gcId);
+      if(countEl) countEl.textContent = `${ci+1} / ${cardCount}`;
+      const card = game.cards[ci];
+      const titleEl = document.getElementById('desc-title-'+gcId);
+      const loreEl = document.getElementById('desc-lore-'+gcId);
+      const teachEl = document.getElementById('desc-teaches-'+gcId);
+      const mechEl = document.getElementById('desc-mechanic-'+gcId);
+      const applyEl = document.getElementById('desc-apply-'+gcId);
+      if(titleEl) titleEl.textContent = getCardGalleryTitle(card);
+      if(loreEl) loreEl.textContent = card.loreNamingWhyText;
+      if(teachEl) teachEl.textContent = card.teachesText;
+      if(mechEl) mechEl.textContent = card.inGameMechanicText;
+      if(applyEl) applyEl.innerHTML = formatTextWithLinks(card.realLifeApplicationText);
+      if(!opts.keepFlip) {
+        document.querySelectorAll(`[id^="fc-${gcId}-"]`).forEach(fc => fc.classList.remove('flipped'));
+      }
+    };
+    const prevBtn = document.getElementById('gc-prev-'+gcId);
+    const nextBtn = document.getElementById('gc-next-'+gcId);
+    if(prevBtn) prevBtn.addEventListener('click', () => { let c = currentCard; updateGallery(c > 0 ? c-1 : cardCount-1); });
+    if(nextBtn) nextBtn.addEventListener('click', () => { let c = currentCard; updateGallery(c < cardCount-1 ? c+1 : 0); });
+
+    // Flip cards
+    game.cards.forEach((_,ci) => {
+      const fc = document.getElementById(`fc-${gcId}-${ci}`);
+      if(!fc) return;
+      const doFlip = () => {
+        const shouldFlip = !fc.classList.contains('flipped');
+        document.querySelectorAll(`[id^="fc-${gcId}-"]`).forEach(card => card.classList.remove('flipped'));
+        if(shouldFlip) fc.classList.add('flipped');
+        fc.setAttribute('aria-pressed', shouldFlip);
+      };
+      fc.addEventListener('click', () => { updateGallery(ci, { keepFlip: true }); doFlip(); });
+      fc.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); updateGallery(ci, { keepFlip: true }); doFlip(); } });
+    });
+
+    // Touch swipe on gallery
+    let gTouchX = 0;
+    if(gtrack) {
+      gtrack.addEventListener('touchstart', e => { gTouchX = e.touches[0].clientX; }, {passive:true});
+      gtrack.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - gTouchX;
+        if(Math.abs(dx) > 40) { let c = currentCard; updateGallery(dx < 0 ? Math.min(c+1,cardCount-1) : Math.max(c-1,0)); }
+      }, {passive:true});
+    }
+
+    // Ensure initial card detail content uses the same formatting path as navigation updates.
+    updateGallery(0);
+  });
+  });
+}
+
+initGamesSection();
+
+</script>
+<!-- Agent Architecture interactive script (inlined) -->
+<script>
+const STAGES = [
+  {"n": 1, "x": 10.833, "y": 20.833, "t": 1.16, "title": "User Request or Trigger", "desc": "A request from a user or another system enters the agent workflow and starts a new task."},
+  {"n": 2, "x": 28.49, "y": 16.759, "t": 1.84, "title": "Authentication & Authorization", "desc": "The system verifies who or what is making the request and confirms what information and actions can be accessed."},
+  {"n": 3, "x": 51.875, "y": 10.185, "t": 2.56, "title": "Orchestrator", "desc": "The orchestrator uses predefined rules to route information and coordinate how the task moves through the system."},
+  {"n": 4, "x": 42.76, "y": 17.685, "t": 3.28, "title": "Content Classifiers", "desc": "Classifiers check whether the input follows safety and policy rules. If it fails, the request is logged and stopped. If it passes, planning begins."},
+  {"n": 5, "x": 64.115, "y": 17.685, "t": 5.76, "title": "Planning Loop", "desc": "The agent works through one or more planning cycles, reasoning about the task and refining its approach until the plan is validated and ready to proceed."},
+  {"n": 6, "x": 81.51, "y": 10.278, "t": 6.96, "title": "System Prompt", "desc": "The system prompt gives the LLM instructions and context about its role, boundaries, and expected behavior."},
+  {"n": 7, "x": 81.667, "y": 30.185, "t": 7.68, "title": "LLM Reasoning & Planning", "desc": "The LLM analyzes the request, determines what needs to happen, and creates a plan for completing the task."},
+  {"n": 8, "x": 81.667, "y": 53.241, "t": 9.12, "title": "Execution", "desc": "The LLM turns its plan into one or more requested tool calls. These requests must still pass system checks before any action occurs."},
+  {"n": 9, "x": 64.167, "y": 51.296, "t": 10.56, "title": "Task Analysis", "desc": "The orchestrator checks whether each requested action is permitted, within the agent's scope, and appropriate to perform."},
+  {"n": 10, "x": 67.083, "y": 68.056, "t": 11.32, "title": "Human Review", "desc": "When required, the action is sent to a person for review. A rejected action stops the task, while an approved action can continue."},
+  {"n": 11, "x": 45.156, "y": 47.5, "t": 13.52, "title": "Tool and Data Routing", "desc": "The orchestrator routes an approved request to the data source or tool the agent is permitted to use."},
+  {"n": 12, "x": 31.719, "y": 78.148, "t": 14.28, "title": "Stored Data Retrieval", "desc": "The agent can retrieve information from approved RAG sources or use its permitted short-term and long-term memory."},
+  {"n": 13, "x": 57.344, "y": 78.148, "t": 17.2, "title": "External Tool Invocation", "desc": "The agent invokes an approved external tool to retrieve information or take an action within defined permissions."},
+  {"n": 14, "x": 39.844, "y": 37.5, "t": 17.96, "title": "Output Classifiers", "desc": "Before content is returned, classifiers check the output again to confirm that it follows safety and policy rules."},
+  {"n": 15, "x": 28.49, "y": 38.519, "t": 19.44, "title": "Final Response", "desc": "The completed response is returned to the user or connected system, ending the workflow."}
+];
+
+async function initAgentInteractive(){
+  const vid = document.getElementById('vid');
+  const overlay = document.getElementById('overlay');
+  const legend = document.getElementById('legend');
+  const ticks = document.getElementById('ticks');
+  const scrub = document.getElementById('scrub');
+  const fill = document.getElementById('fill');
+  const card = document.getElementById('card');
+  const cardBadge=document.getElementById('cardBadge'), cardTitle=document.getElementById('cardTitle'), cardDesc=document.getElementById('cardDesc');
+  const cardClose=document.getElementById('cardClose');
+  const playBtn=document.getElementById('playBtn');
+  const restartBtn=document.getElementById('restartBtn');
+  const curStage=document.getElementById('curStage');
+
+  vid.src = siteAsset('Agent-Diagrams/agent-architecture.mp4');
+
+  let DUR = 14; let pinned = null; let hotspotEls = {}; let legendEls = {}; let dragging=false; let lastScrolledStage = null;
+
+  STAGES.forEach(s=>{
+    const h=document.createElement('div'); h.className='hotspot'; h.style.left=s.x+'%'; h.style.top=s.y+'%'; h.tabIndex=0; h.setAttribute('role','button'); h.setAttribute('aria-label','Stage '+s.n+': '+s.title); h.dataset.n=s.n;
+    h.addEventListener('mouseenter',()=>{ if(pinned===null) showCard(s.n,false); highlight(s.n,true); });
+    h.addEventListener('mouseleave',()=>{ if(pinned===null){ hideCard(); highlight(s.n,false); } });
+    h.addEventListener('click',(e)=>{ e.stopPropagation(); pinCard(s.n); seekToStage(s.n); });
+    h.addEventListener('keydown',(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); pinCard(s.n); seekToStage(s.n); } });
+    overlay.appendChild(h); hotspotEls[s.n]=h;
+
+    const li=document.createElement('div'); li.className='lgi'; li.dataset.n=s.n; li.innerHTML='<div class="n">'+s.n+'</div><div class="tx"><b>'+s.title+'</b><span>'+s.desc+'</span></div>';
+    li.addEventListener('mouseenter',()=>{ if(pinned===null) showCard(s.n,false); highlight(s.n,true); });
+    li.addEventListener('mouseleave',()=>{ if(pinned===null){ hideCard(); highlight(s.n,false); } });
+    li.addEventListener('click',()=>{ pinCard(s.n); seekToStage(s.n); });
+    legend.appendChild(li); legendEls[s.n]=li;
+
+    const t=document.createElement('div'); t.className='tick'; t.dataset.n=s.n; t.title='Stage '+s.n; ticks && ticks.appendChild(t);
+  });
+
+  function positionTicks(){ STAGES.forEach(s=>{ const tk = ticks.querySelector('.tick[data-n="'+s.n+'"]'); if(tk) tk.style.left=(s.t/DUR*100)+'%'; }); }
+  function syncOverlaySize(){ const h = vid.clientHeight; if(!h) return; overlay.style.top='0px'; overlay.style.left='0px'; overlay.style.right='auto'; overlay.style.bottom='auto'; overlay.style.width='100%'; overlay.style.height=h+'px'; if(card.classList.contains('show')){ const n=pinned!==null?pinned:parseInt(cardBadge.textContent,10); placeCard(stageByN(n)); } }
+  function highlight(n,on){ const h=hotspotEls[n], li=legendEls[n]; if(on){ h.classList.add('active'); li.classList.add('active'); li.scrollIntoView({block:'nearest'});} else if(pinned!==n){ h.classList.remove('active'); li.classList.remove('active'); }}
+  function stageByN(n){ return STAGES.find(s=>s.n===n); }
+  function showCard(n,pin){ const s=stageByN(n); cardBadge.textContent=s.n; cardTitle.textContent=s.title; cardDesc.textContent=s.desc; card.classList.add('show'); placeCard(s); }
+  function placeCard(s){ const W=overlay.clientWidth, H=overlay.clientHeight; card.style.maxWidth=Math.min(320, W*0.8)+'px'; const cw=card.offsetWidth||300, ch=card.offsetHeight||150; const px=s.x/100*W, py=s.y/100*H; let left = (s.x<55) ? px+26 : px-cw-26; let top = (s.y<55) ? py+18 : py-ch-18; left=Math.max(8,Math.min(left,W-cw-8)); top=Math.max(8,Math.min(top,H-ch-8)); card.style.left=left+'px'; card.style.top=top+'px'; }
+  function hideCard(){ if(pinned===null) card.classList.remove('show'); }
+  function pinCard(n){ Object.values(legendEls).forEach(li=>li.classList.remove('active')); Object.values(hotspotEls).forEach(h=>h.classList.remove('active')); pinned=n; showCard(n,true); highlight(n,true); }
+  function unpin(){ pinned=null; card.classList.remove('show'); Object.values(legendEls).forEach(li=>li.classList.remove('active')); Object.values(hotspotEls).forEach(h=>h.classList.remove('active')); lastScrolledStage=null; updateStageState(); }
+  cardClose.addEventListener('click',(e)=>{ e.stopPropagation(); unpin(); }); document.getElementById('stagewrap').addEventListener('click',(e)=>{ if(pinned!==null && !e.target.closest('.hotspot') && !e.target.closest('#card')) unpin(); });
+  function seekToStage(n){ const s=stageByN(n); pauseVid(); vid.currentTime=Math.min(s.t, DUR-0.05); }
+  function pauseVid(){ vid.pause(); } function playVid(){ if(vid.currentTime>=DUR-0.06) vid.currentTime=0; vid.play(); }
+  playBtn && playBtn.addEventListener('click',()=>{ vid.paused? playVid():pauseVid(); }); restartBtn && restartBtn.addEventListener('click',()=>{ pauseVid(); vid.currentTime=0; });
+
+  vid.addEventListener('loadedmetadata',()=>{ DUR=vid.duration||14; positionTicks(); syncOverlaySize(); syncUI(); });
+  vid.addEventListener('ended',()=>{ pauseVid(); }); vid.addEventListener('timeupdate',()=>{ if(!dragging) syncUI(); });
+
+  function syncUI(){ const f=Math.max(0,Math.min(1,vid.currentTime/DUR)); if(!dragging) scrub.value=Math.round(f*1000); fill.style.width=(f*100)+'%'; updateStageState(); }
+
+  function updateStageState(){ const ct=vid.currentTime; let current=null; STAGES.forEach(s=>{ const appeared = ct>=s.t-0.15; hotspotEls[s.n].classList.toggle('appeared',appeared); legendEls[s.n].classList.toggle('done',appeared); const tick = ticks && ticks.querySelector('.tick[data-n="'+s.n+'"]'); if(tick) tick.classList.toggle('done',appeared); if(appeared) current=s; }); if(pinned!==null){ curStage.textContent='Stage '+pinned+' — '+stageByN(pinned).title; } else if(current){ curStage.textContent='Stage '+current.n+' — '+current.title; if(!pinned && !vid.paused){ const el = legendEls[current.n]; if(el && lastScrolledStage !== current.n){ lastScrolledStage = current.n; try{ el.scrollIntoView({behavior:'smooth',block:'nearest'}); }catch(e){ el.scrollIntoView(); } } } } else { curStage.textContent='Start — user request incoming'; } }
+
+  function scrubTo(){ const f=scrub.value/1000; const t=f*DUR; if(vid.readyState>=1){ vid.currentTime=Math.min(t,DUR-0.03); } fill.style.width=(f*100)+'%'; }
+  scrub.addEventListener('pointerdown',()=>{ dragging=true; pauseVid(); }); scrub.addEventListener('input',()=>{ dragging=true; scrubTo(); }); window.addEventListener('pointerup',()=>{ if(dragging){ dragging=false; syncUI(); } }); scrub.addEventListener('change',()=>{ dragging=false; scrubTo(); syncUI(); });
+  scrub.addEventListener('keydown',(e)=>{ if(e.key==='ArrowLeft'||e.key==='ArrowRight'){ dragging=true; pauseVid(); let v=parseInt(scrub.value,10)+(e.key==='ArrowRight'?12:-12); scrub.value=Math.max(0,Math.min(1000,v)); scrubTo(); dragging=false; } });
+
+  window.addEventListener('keydown',(e)=>{ if(e.target===scrub) return; if(e.key===' '){ e.preventDefault(); vid.paused?playVid():pauseVid(); } else if(e.key==='ArrowRight'){ pauseVid(); vid.currentTime=Math.min(DUR-0.03,vid.currentTime+0.5); } else if(e.key==='ArrowLeft'){ pauseVid(); vid.currentTime=Math.max(0,vid.currentTime-0.5); } });
+
+  window.addEventListener('resize', syncOverlaySize);
+
+  vid.addEventListener('seeked',()=>{ if(dragging){ fill.style.width=(vid.currentTime/DUR*100)+'%'; updateStageState(); } else { syncUI(); } });
+
+  function syncLegendHeight(){ const side = document.querySelector('.side'); if(!side) return; const h = side.clientHeight; const h2 = side.querySelector('h2'); const h2h = h2 ? h2.offsetHeight : 0; const footer = document.querySelector('.footer'); const footerh = footer ? footer.offsetHeight : 0; const padding = 24; const legend = side.querySelector('.legend') || side; const firstItem = legend.querySelector('.lgi'); const itemH = firstItem ? firstItem.offsetHeight : 56; const desired = itemH * 5 + 12; const max = Math.max(120, Math.min(desired, h - h2h - footerh - padding)); legend.style.maxHeight = max + 'px'; legend.style.overflow = 'auto'; }
+  window.addEventListener('resize', syncLegendHeight);
+  setTimeout(syncLegendHeight,200);
+  setTimeout(syncOverlaySize,200);
+}
+
+// initialize after other scripts ready
+document.addEventListener('DOMContentLoaded', ()=>{ initAgentInteractive().catch(e=>console.warn(e)); });
+</script>
+</body>
+</html>
+

@@ -1,0 +1,322 @@
+﻿[
+    {
+        "id":  "1_1_1",
+        "title":  "Gates of Troy",
+        "loreNamingWhy":  "Troy fell not by force but by a gift — a hollow victory that walked itself inside. User Prompt Injection works the same way: the threat arrives in the language the system was built to trust.",
+        "howItWorksInGame":  "Selecting this card maps a threat that enters through the user input channel — the direct path into the agent.",
+        "whatItTeachesYou":  "Systems that treat all user input as trustworthy are one clever prompt away from compromise. Instruction hierarchies break down when the model cannot distinguish a user\u0027s request from an attacker\u0027s command embedded inside it.",
+        "realLifeApplication":  "User Prompt Injection mitigations include authenticating and authorizing who can use the system, content filtering for known prompt injection attacks (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields), and system prompt hardening (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/system-message?tabs=top-techniques)."
+    },
+    {
+        "id":  "1_1_2",
+        "title":  "Alexandrian Scrolls",
+        "loreNamingWhy":  "The Library of Alexandria held the world\u0027s knowledge — and its destruction changed what everyone downstream believed to be true. RAG Poisoning corrupts the source of truth an agent retrieves from, shaping every answer it gives without ever touching the model itself.",
+        "howItWorksInGame":  "This card is required to win Game 1: Threat Modeling, because it is the only threat inside the system\u0027s grounding context, making it uniquely dangerous and uniquely important to model.",
+        "whatItTeachesYou":  "RAG systems extend an agent\u0027s knowledge but inherit its trust assumptions. Malicious documents injected into a retrieval corpus can redirect behavior, exfiltrate data, or persist across sessions without any model-level attack. The retrieval layer is trusted by default — which makes it a high-value poisoning target.",
+        "realLifeApplication":  "Retrieval-augmented generation (RAG) security includes document provenance validation and spotlighting (https://arxiv.org/html/2403.14720v1)."
+    },
+    {
+        "id":  "1_1_3",
+        "title":  "Talos War Machines",
+        "loreNamingWhy":  "Talos was a bronze giant built to protect Crete — an automated defender that could be turned against its creators by exploiting one vulnerability. Tool and API exploitation works the same way: the agent\u0027s most powerful capabilities become its greatest liability when over-permissioned.",
+        "howItWorksInGame":  "This card maps a threat that enters through the agent\u0027s connections to external services — APIs, tools, and third-party systems.",
+        "whatItTeachesYou":  "Agents granted more tool permissions than they need create enormous blast radii. A single hijacked tool call can exfiltrate data, trigger unintended actions in external systems, or bypass human review entirely. Least-privilege is not just good hygiene — it is the difference between a contained incident and a catastrophic one.",
+        "realLifeApplication":  "Apply the principle of least privilege for AI agents, tool-use security in agentic frameworks, and API permission scoping. The OWASP Top 10 for LLMs covers excessive agency (https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM06_ExcessiveAgency.html)."
+    },
+    {
+        "id":  "1_1_4",
+        "title":  "Sirens’ Council",
+        "loreNamingWhy":  "The Sirens did not attack ships — they sang to them, arriving in a form sailors were predisposed to trust. Multimodal prompt injection hides instructions in images, audio, or files that text-based filters are not designed to inspect.",
+        "howItWorksInGame":  "This card maps a threat that enters through the user input channel alongside or instead of text — in formats the system was not trained to distrust.",
+        "whatItTeachesYou":  "Safety filters trained on text can be completely bypassed when instructions arrive in other modalities. An image that looks like a receipt to a human can carry an instruction that the model reads as a command. The attack surface expands with every new input type an agent accepts.",
+        "realLifeApplication":  "Multimodal prompt injection is an emerging area with limited standardized tooling. Evaluate your agent\u0027s attack surface for every input modality it accepts. Microsoft\u0027s AI Red Teaming Agent can help probe multimodal attack surfaces (https://learn.microsoft.com/en-us/azure/foundry/concepts/ai-red-teaming-agent)."
+    },
+    {
+        "id":  "1_1_5",
+        "title":  "Hermes Marketplace",
+        "loreNamingWhy":  "Hermes was the messenger of the gods — crossing every boundary, trusted by all parties, carrying words between worlds. Cross-prompt injection exploits exactly that trust: the agent retrieves external content and executes it as if it were a trusted instruction.",
+        "howItWorksInGame":  "This card maps a threat that enters through external data sources the agent retrieves — websites, documents, emails — rather than directly from the user.",
+        "whatItTeachesYou":  "Agents that browse the web, read emails, or query external APIs are constantly ingesting content from untrusted sources. When that content contains instructions and the model cannot distinguish retrieval from commands, an attacker who controls any external source the agent touches can hijack its behavior entirely.",
+        "realLifeApplication":  "Cross-prompt injection through retrieval pipelines is covered in the spotlighting paper (https://arxiv.org/html/2403.14720v1) and in Lessons From Red Teaming 100 Generative AI Products (https://arxiv.org/abs/2501.07238). Prompt Shields in Azure Foundry provides indirect attack detection (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields). Microsoft Purview can help monitor what agents retrieve and act on (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696)."
+    },
+    {
+        "id":  "2_2_6",
+        "title":  "Daedalus Labyrinth",
+        "loreNamingWhy":  "Daedalus built the Labyrinth to contain the Minotaur — a structure so complex no one could navigate it without getting lost. An API backdoor works the same way in reverse: malicious instructions are passed through such a convoluted chain of tool calls that no single step looks suspicious.",
+        "howItWorksInGame":  "This card represents how the attack enters the system — through a chain of indirect tool calls in External Services, each step appearing legitimate in isolation.",
+        "whatItTeachesYou":  "Multi-hop tool chains create attribution gaps. When each step in a sequence appears legitimate in isolation, defenders following individual calls never see the full picture. Indirect tool-use attacks exploit the assumption that orchestrated calls are trustworthy because they originate from inside the system.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). For tool-chain attack specifics, the AI Red Teaming Agent can simulate indirect tool call injection (https://learn.microsoft.com/en-us/azure/foundry/concepts/ai-red-teaming-agent). Guardrails and controls in Microsoft Foundry cover tool use policies (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "2_2_7",
+        "title":  "Trojan Horse",
+        "loreNamingWhy":  "The Trojan Horse was brought inside the city walls by the city\u0027s own people, who believed it was a gift. Cross-prompt injection works the same way: malicious instructions hidden in external content are retrieved and executed by the agent as if they were trusted commands.",
+        "howItWorksInGame":  "This card represents how the attack enters the system — through content the agent retrieves from external sources and treats as trusted.",
+        "whatItTeachesYou":  "When an agent retrieves external data — from web pages, documents, or shared resources — it may also retrieve instructions embedded in that data. The attack surface is not the model; it is everything the model is told to read. XPIA is particularly dangerous in agentic workflows where retrieval and execution are tightly coupled.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). Spotlighting is the key mitigation paper for this attack class (https://arxiv.org/html/2403.14720v1). Prompt Shields in Azure Foundry provides indirect attack detection (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields)."
+    },
+    {
+        "id":  "2_2_8",
+        "title":  "River Lethe",
+        "loreNamingWhy":  "The Lethe was the river of forgetfulness in the underworld — those who drank from it forgot their past, their identity, their constraints. Parametric memory poisoning corrupts the model\u0027s weights during training, embedding malicious behavior so deep that it predates any runtime defense.",
+        "howItWorksInGame":  "This card represents how the attack enters the system — at the model\u0027s foundation, through corrupted training data, before the gates were ever opened.",
+        "whatItTeachesYou":  "Parametric poisoning attacks operate below the application layer. By corrupting training data, an attacker can embed behaviors that persist across deployments, survive fine-tuning, and evade runtime detection entirely. This is a supply chain attack against the model itself.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). Research on detecting backdoored language models at scale is directly relevant (https://www.microsoft.com/en-us/security/blog/2026/02/04/detecting-backdoored-language-models-at-scale/). The paper on unaligning LLMs with a single unlabeled prompt shows how little it takes to corrupt a model (https://arxiv.org/abs/2602.06258). MITRE ATLAS covers ML supply chain compromise (https://atlas.mitre.org/)."
+    },
+    {
+        "id":  "2_3_9",
+        "title":  "Veil of Nyx",
+        "loreNamingWhy":  "Nyx was the goddess of night — her veil drew darkness over the world, rendering everything invisible. Low-resource language attacks work the same way: the attack arrives in a language the safety filters were never trained to see.",
+        "howItWorksInGame":  "This card amplifies the attack by routing it through Content Filtering\u0027s gaps — a language the classifier was not trained to recognize.",
+        "whatItTeachesYou":  "Safety classifiers trained predominantly on high-resource languages have significantly weaker coverage in low-resource languages. An attack phrased in a language the classifier does not recognize may pass through filters that would catch the same instruction in English. Coverage gaps are geographic and linguistic as much as they are technical.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). Evaluate your safety classifiers across languages using PyRIT\u0027s multilingual probes (https://microsoft.github.io/PyRIT/). Lessons From Red Teaming 100 Generative AI Products documents this gap in deployed systems (https://arxiv.org/abs/2501.07238)."
+    },
+    {
+        "id":  "2_3_10",
+        "title":  "Zeus Thunderbolt",
+        "loreNamingWhy":  "Zeus did not sneak — he announced himself with thunder and lightning, and the world shook. Nation-state orchestration is the opposite of stealth: a coordinated, resource-intensive strike that hits multiple systems simultaneously. Powerful, visible, and ultimately self-defeating as an infiltration strategy.",
+        "howItWorksInGame":  "Selecting Zeus Thunderbolt guarantees a loss in Game 2: Red Teaming — no infiltration or payload survives an amplifier that announces itself to every monitor in the Orchestrator simultaneously.",
+        "whatItTeachesYou":  "The most sophisticated adversaries are not always the loudest. Nation-state-level resources can enable simultaneous multi-vector attacks, but an attack that triggers alerts across every system simultaneously is a contained one. Stealth and surgical precision — not scale alone — are what make advanced attacks hard to stop.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). Understanding coordinated multi-vector campaigns informs detection engineering. Lessons From Red Teaming 100 Generative AI Products covers the range of attack sophistication observed in practice (https://arxiv.org/abs/2501.07238)."
+    },
+    {
+        "id":  "2_3_11",
+        "title":  "Hydra Dialogue",
+        "loreNamingWhy":  "The Hydra grew a new head for every one cut off — its threat was distributed, persistent, and impossible to address at any single point. Multi-turn chat attacks work the same way: no single message triggers a flag, but the attack assembles across turns.",
+        "howItWorksInGame":  "This card amplifies the attack by distributing it across conversation turns — no single message carries enough signal to trigger a content filter.",
+        "whatItTeachesYou":  "Single-turn safety evaluations miss attacks that are intentionally fragmented. When each turn of a conversation appears innocuous in isolation, context-free filtering fails. Effective defenses need conversation-level awareness — the ability to evaluate intent across a session, not just per message.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). PyRIT includes multi-turn attack orchestration capabilities (https://microsoft.github.io/PyRIT/). The AI Red Teaming Agent supports multi-turn conversation probing (https://learn.microsoft.com/en-us/azure/foundry/concepts/ai-red-teaming-agent)."
+    },
+    {
+        "id":  "2_4_12",
+        "title":  "Sisyphus Return",
+        "loreNamingWhy":  "Sisyphus was condemned to push a boulder up a hill forever, only for it to roll back down — endlessly persistent, never quite getting there. Retry exploitation uses the same grinding persistence: spaced retries that each stay just below detection thresholds, accumulating until something lands.",
+        "howItWorksInGame":  "Selecting Sisyphus Return guarantees a draw in Game 2: Red Teaming — the attack is persistent enough to partially succeed, but the pattern of retries is detectable, meaning it gets flagged before the payload fully lands.",
+        "whatItTeachesYou":  "Rate limiting and retry logic are common mitigations against automated attacks — but they are only effective if the pattern is observable across time. Retries spaced deliberately to evade per-request thresholds accumulate into signatures that anomaly detection can catch. The tell is not any single request; it is the rhythm.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). PyRIT includes automated retry and escalation orchestration to simulate this pattern (https://microsoft.github.io/PyRIT/). Guardrails and controls in Microsoft Foundry include rate limiting configurations (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "2_4_13",
+        "title":  "Chronos Delay",
+        "loreNamingWhy":  "Chronos was the god of time itself — patient, inevitable, the force that makes everything eventually come to pass. Temporal delay attacks exploit time: the attack is embedded, waits, and fires long after the original input has been forgotten.",
+        "howItWorksInGame":  "This card makes the attack subtle by storing it in memory and activating it later, severing the causal connection between the original input and the eventual action.",
+        "whatItTeachesYou":  "Attribution in agentic systems depends on traceable causality — the ability to connect an action back to its originating instruction. Temporal delay attacks break this chain deliberately. By the time the payload executes, the original injection has been overwritten, expired, or simply forgotten. Forensic reconstruction requires logs that preserve context across time.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). Microsoft Purview audit logs can help trace delayed actions back to their origin (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696)."
+    },
+    {
+        "id":  "2_4_14",
+        "title":  "Oracle’s Condition",
+        "loreNamingWhy":  "The Oracle at Delphi gave prophecies that only triggered under specific conditions — ambiguous until the moment they came true. A latent trigger works the same way: dormant until a precise condition is met, then executing exactly as programmed, while the original instruction has long since left the context window.",
+        "howItWorksInGame":  "This card makes the attack subtle by lying dormant until a specific condition is met, then hijacking the Orchestrator\u0027s routing logic — making attribution extremely difficult.",
+        "whatItTeachesYou":  "Condition-triggered attacks are among the hardest to detect because they are inactive during most evaluations. A model that behaves perfectly under normal conditions and maliciously only in specific contexts defeats safety evaluations that do not test those edge cases. Behavioral consistency testing across diverse conditions is essential.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). Backdoor trigger research is directly relevant — see detecting backdoored language models at scale (https://www.microsoft.com/en-us/security/blog/2026/02/04/detecting-backdoored-language-models-at-scale/) and MITRE ATLAS on sleeper agent attacks (https://atlas.mitre.org/)."
+    },
+    {
+        "id":  "2_5_15",
+        "title":  "Dionysus Frenzy",
+        "loreNamingWhy":  "Dionysus was the god of excess — his followers abandoned restraint and let the frenzy take over. Privilege escalation is excess in exactly that sense: an agent granted more access than it needs, reaching into every corner of the system when something goes wrong.",
+        "howItWorksInGame":  "This card represents the impact of the attack — exploiting over-provisioned permissions to reach far beyond the original entry point once the agent is compromised.",
+        "whatItTeachesYou":  "The blast radius of any compromise is bounded by the permissions of the compromised entity. An agent following least-privilege principles can only do limited damage when hijacked. An over-permissioned agent becomes a master key: one successful injection reaches every system it was granted access to.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). The OWASP Top 10 for LLMs covers Excessive Agency specifically (https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM06_ExcessiveAgency.html). Guardrails and controls in Microsoft Foundry include permission scoping for agents (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "2_5_16",
+        "title":  "Ares Command",
+        "loreNamingWhy":  "Ares was the god of war — not strategy, but irreversible action. Destruction that could not be undone. Tool hijack works the same way: once a tool call fires, the email is sent, the code runs, the file is deleted. There is no undo.",
+        "howItWorksInGame":  "This card represents the impact of the attack — causing irreversible real-world harm through hijacked tool calls beyond the system\u0027s own boundaries.",
+        "whatItTeachesYou":  "The irreversibility of tool-mediated actions is what makes agentic security categorically different from traditional software security. A hijacked read operation is recoverable. A hijacked write, send, or delete operation may not be. Human-in-the-loop checkpoints before irreversible tool calls are the last line of defense against this class of harm.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). Guardrails and controls in Microsoft Foundry include tool call authorization and human-in-the-loop hooks (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview). Microsoft Purview can monitor and flag irreversible agent actions (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696)."
+    },
+    {
+        "id":  "2_5_17",
+        "title":  "Medusa’s Gaze",
+        "loreNamingWhy":  "Medusa\u0027s gaze did not just harm — it froze, permanently. Memory corruption works the same way: once the model\u0027s memory is overwritten with poisoned data, every future query is shaped by the corruption. The payload does not fire once. It fires every time.",
+        "howItWorksInGame":  "This card represents the impact of the attack — overwriting persistent memory so that every future interaction is an extension of the original exploit.",
+        "whatItTeachesYou":  "Persistent memory in agentic systems is a force multiplier for attackers. A single successful write to the memory store can redirect behavior indefinitely, shape future reasoning, and survive session boundaries. Memory corruption compounds: the longer it persists undetected, the more decisions it has already influenced.",
+        "realLifeApplication":  "Start with PyRIT (https://microsoft.github.io/PyRIT/) to probe this attack surface programmatically, and AI Red Teaming 101 for foundational concepts (https://www.youtube.com/watch?v=DwFVhFdD2fs). Lessons From Red Teaming 100 Generative AI Products documents this class of attack in the wild (https://arxiv.org/abs/2501.07238). Microsoft Purview capabilities for GenAI agents include memory store monitoring and audit (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). Guardrails and controls in Microsoft Foundry cover memory access policies (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "3_6_18",
+        "title":  "Cerberus Gate",
+        "loreNamingWhy":  "Cerberus guarded the gates of the underworld — nothing passed without being verified, and nothing that entered was permitted to leave unchecked. Access control works the same way: verify the identity and permission of every entity before it acts.",
+        "howItWorksInGame":  "This is one of two deterministic defense cards required to win Game 3: Defense — access control guarantees behavior rather than predicting it, enforcing least-privilege at the system boundary.",
+        "whatItTeachesYou":  "Authentication and authorization are the foundation of any secure system. For AI agents, least-privilege access control limits the blast radius of any compromise: a hijacked agent can only reach what it was explicitly permitted to touch. Deterministic enforcement through policy rules — not model judgment — is what makes this reliable.",
+        "realLifeApplication":  "Implement least-privilege access control for AI agents using Azure Role-Based Access Control (RBAC) and managed identity (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview). The OWASP Top 10 for LLMs covers Excessive Agency, the risk this control directly mitigates (https://owasp.org/www-project-top-10-for-large-language-model-applications/2_0_vulns/LLM06_ExcessiveAgency.html)."
+    },
+    {
+        "id":  "3_6_19",
+        "title":  "Stygian Moat",
+        "loreNamingWhy":  "The River Styx was a boundary — a barrier between worlds that filtered who could cross. Content filtering works the same way: screening what enters the system before it can do harm. But like the Styx, it only stops what it recognizes.",
+        "howItWorksInGame":  "This is a probabilistic defense card — it raises the bar against harmful inputs but can be bypassed by novel or carefully crafted attacks the filter was not trained to recognize.",
+        "whatItTeachesYou":  "Content filtering is a valuable first line of defense but not a guarantee. Filters trained on known attack patterns fail against novel ones. Low-resource language attacks, encoded instructions, and carefully crafted jailbreaks routinely bypass classifiers. Filtering should be layered with deterministic controls, not relied on as a sole defense.",
+        "realLifeApplication":  "Azure Foundry content filtering and Prompt Shields provide input screening for known injection patterns and jailbreaks (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields). Use PyRIT to evaluate filter coverage against novel attacks (https://microsoft.github.io/PyRIT/)."
+    },
+    {
+        "id":  "3_6_20",
+        "title":  "Pandora’s Seal",
+        "loreNamingWhy":  "Pandora\u0027s box released every evil in the world when opened without understanding what was inside. Human review is the seal that keeps that box shut — a thinking mind in the chain that can recognize what automated systems miss. But even Pandora eventually opened it.",
+        "howItWorksInGame":  "This is a probabilistic defense card — strong but fallible. Human reviewers catch what no filter can, but they can be rushed, deceived, or bypassed under pressure.",
+        "whatItTeachesYou":  "Human-in-the-loop checkpoints are among the most effective defenses against irreversible agentic actions — a human who understands context can catch attacks that automated systems miss entirely. But the control is only as strong as the reviewer: time pressure, alert fatigue, and overreliance on automation all degrade its effectiveness. Human oversight is a control, not a guarantee.",
+        "realLifeApplication":  "Implement human-in-the-loop hooks for high-stakes agent actions using Azure Foundry guardrails (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview). The SDL for AI includes guidance on where human review adds the most protective value (https://www.microsoft.com/en-us/securityengineering/sdl/ai)."
+    },
+    {
+        "id":  "3_6_21",
+        "title":  "Fates’ Path",
+        "loreNamingWhy":  "The Fates did not deliberate — they cut the thread according to fixed rules, without exception or negotiation. Deterministic routing works the same way: every decision follows a pre-defined rule, not a model\u0027s judgment about what seems appropriate.",
+        "howItWorksInGame":  "This is the stronger of two deterministic defense cards required to win Game 3: Defense — deterministic routing removes the LLM from the decision path entirely, guaranteeing behavior that cannot be talked around by any input.",
+        "whatItTeachesYou":  "When the orchestrator\u0027s routing logic is implemented as strict rules rather than model inference, it becomes immune to prompt injection that tries to redirect behavior through natural language. The model can be told to do anything — but if routing is deterministic, it goes where the rules send it, not where the prompt points.",
+        "realLifeApplication":  "Implement deterministic orchestration using Azure Foundry\u0027s agent framework with explicit routing rules and constrained tool access (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview). Evaluate which orchestration decisions in your system truly need to be made by a language model — and which can be governed by explicit rules."
+    },
+    {
+        "id":  "3_6_22",
+        "title":  "Charon’s Crossing",
+        "loreNamingWhy":  "Charon ferried souls across the river — nothing left the underworld without passing through him. Output sanitization is the last checkpoint before information crosses the boundary: everything the agent sends out is inspected before it reaches the world.",
+        "howItWorksInGame":  "This is a probabilistic defense card — it catches harmful content in outputs before they leave the system, but a sufficiently crafted output may still pass through.",
+        "whatItTeachesYou":  "Output sanitization is especially important in agentic systems where outputs may contain injected content, exfiltrated data, or instructions to downstream systems. Inspecting only inputs misses attacks where the model itself has been compromised and produces malicious outputs as a result.",
+        "realLifeApplication":  "Azure Foundry content filtering applies to outputs as well as inputs — configure output filtering to catch sensitive data and injected instructions (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields). Microsoft Purview can monitor outbound agent communications (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696)."
+    },
+    {
+        "id":  "3_6_23",
+        "title":  "Muses\u0027 Chorus",
+        "loreNamingWhy":  "The Muses inspired — they guided and clarified, giving form to what was otherwise ambiguous. System prompt hardening does the same: it makes instructions explicit, closes interpretive gaps, and gives the model less room to be talked into something it was not meant to do.",
+        "howItWorksInGame":  "This is a probabilistic defense card — it raises the bar against prompt injection by reducing ambiguity, but it cannot eliminate the probabilistic nature of model inference.",
+        "whatItTeachesYou":  "A well-hardened system prompt reduces the model\u0027s susceptibility to injection by making authorized behavior explicit and leaving less room for reframing. But hardening is not a deterministic control: a sufficiently adversarial input can still find ways to override or reinterpret even a carefully written prompt. The model always has some interpretive latitude.",
+        "realLifeApplication":  "Microsoft\u0027s system message guidance covers hardening techniques including meta-prompts, delimiters, and grounding instructions (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/system-message?tabs=top-techniques). Use PyRIT to stress-test your system prompt against known injection patterns (https://microsoft.github.io/PyRIT/)."
+    },
+    {
+        "id":  "4_7_24",
+        "title":  "Helios Timeline",
+        "loreNamingWhy":  "Helios drove the sun chariot across the sky every day — his passage marked time itself. A timestamp log does the same for a system: without it, every event is just a fact disconnected from every other fact.",
+        "howItWorksInGame":  "Helios Timeline is the required When card — without it you cannot reconstruct the attack sequence, because no other log can be placed in order without knowing when events occurred.",
+        "whatItTeachesYou":  "Timestamps are the foundation of forensic reconstruction. Every other log — who acted, what triggered the event, what the outcome was — is meaningful only in sequence. A system without reliable, tamper-resistant timestamps cannot reconstruct causality. Before anything else, you need to know when.",
+        "realLifeApplication":  "Ensure your logging infrastructure records high-resolution, synchronized timestamps for every system event. Azure Monitor and Log Analytics provide centralized logging infrastructure for AI systems (https://learn.microsoft.com/en-us/azure/azure-monitor/overview). Microsoft Purview audit capabilities extend to GenAI agent actions (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). Azure Foundry includes built-in observability hooks for agentic workflows (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "4_7_25",
+        "title":  "Hephaestus Mark",
+        "loreNamingWhy":  "Hephaestus was the divine craftsman — he built things that bore his mark, uniquely traceable back to their maker. A memory access log does the same: it records who touched the Archive, when, and what they did.",
+        "howItWorksInGame":  "This card reveals who acted — it identifies the direct hand behind the corruption of the Memory Archive, the highest-value target in the system.",
+        "whatItTeachesYou":  "Memory stores in agentic systems shape future reasoning. Knowing who wrote to the memory store — which agent, which session, which tool call — is essential for attribution. Without actor-level logging at the memory layer, you know something was corrupted but not by what.",
+        "realLifeApplication":  "Implement memory access audit logging with actor attribution for all write operations to persistent agent memory. Azure Monitor and Log Analytics provide centralized logging infrastructure for AI systems (https://learn.microsoft.com/en-us/azure/azure-monitor/overview). Microsoft Purview audit capabilities extend to GenAI agent actions (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). Azure Foundry includes built-in observability hooks for agentic workflows (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "4_7_26",
+        "title":  "Theseus Thread",
+        "loreNamingWhy":  "Theseus followed Ariadne\u0027s thread through the Labyrinth — a trail of human decisions that led him through complexity and back out again. HITL activity logging records every decision that a human touched, creating exactly that navigable trail.",
+        "howItWorksInGame":  "This card reveals who acted — specifically whether human checkpoints were engaged, bypassed, or manipulated during the attack.",
+        "whatItTeachesYou":  "Human-in-the-loop checkpoints are only as valuable as your ability to verify they occurred. If an attack routes around human review without triggering any log entry, defenders cannot know whether the oversight layer functioned as intended. HITL activity logs answer a critical question: did a human actually see this before it executed?",
+        "realLifeApplication":  "Log every action routed through human review workflows, including decisions made and time elapsed. Azure Monitor and Log Analytics provide centralized logging infrastructure for AI systems (https://learn.microsoft.com/en-us/azure/azure-monitor/overview). Microsoft Purview audit capabilities extend to GenAI agent actions (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). Azure Foundry includes built-in observability hooks for agentic workflows (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "4_7_27",
+        "title":  "Themis Scale",
+        "loreNamingWhy":  "Themis held the scales of justice — weighing every action against the law, recording the verdict. A content policy log does the same: for every input that arrived, it records whether the system allowed it, blocked it, or sanitized it, and why.",
+        "howItWorksInGame":  "This card reveals how the attack entered — specifically whether the attack was visible to the system\u0027s own defenses at the moment it arrived.",
+        "whatItTeachesYou":  "Knowing whether an attack triggered your safety systems — and what those systems decided — is essential for understanding how it succeeded. If an input was allowed through without a flag, that is a gap in your filters. If it was flagged but allowed anyway, that is a policy decision worth revisiting.",
+        "realLifeApplication":  "Enable content policy logging in Azure Foundry to capture allow/block/sanitize decisions with reasoning for every input (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields). Azure Monitor and Log Analytics provide centralized logging infrastructure for AI systems (https://learn.microsoft.com/en-us/azure/azure-monitor/overview). Microsoft Purview audit capabilities extend to GenAI agent actions (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). Azure Foundry includes built-in observability hooks for agentic workflows (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "4_7_28",
+        "title":  "Iris\u0027s Signal",
+        "loreNamingWhy":  "Iris was the goddess of the rainbow — a messenger who moved between worlds, connecting the divine and the mortal. A RAG activity log connects your knowledge pipeline to your forensic investigation: recording what was retrieved, from where, and whether it changed unexpectedly.",
+        "howItWorksInGame":  "This card reveals how the attack may have entered — by flagging unexpected changes in external retrieval sources between pulls, signaling potential poisoning through trusted channels.",
+        "whatItTeachesYou":  "RAG pipelines are trusted by default — the agent assumes that what it retrieves is clean. A RAG activity log makes that assumption verifiable: has the content of this source changed between retrievals? Changes that correlate with behavioral anomalies are a signal worth investigating.",
+        "realLifeApplication":  "Implement retrieval audit logging with document version tracking and change detection for all external sources your agent queries. Azure Monitor and Log Analytics provide centralized logging infrastructure for AI systems (https://learn.microsoft.com/en-us/azure/azure-monitor/overview). Microsoft Purview audit capabilities extend to GenAI agent actions (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). Azure Foundry includes built-in observability hooks for agentic workflows (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "4_7_29",
+        "title":  "Echo\u0027s Mirror",
+        "loreNamingWhy":  "Echo was the nymph condemned to repeat only what was said to her — a perfect record of every output, whether she wanted to produce it or not. An output log does the same: it captures every response the system produced, regardless of whether anyone thought to look.",
+        "howItWorksInGame":  "This card reveals impact — what the system actually did, whether the attacker\u0027s intended outcome was achieved, and what was sent to users or downstream systems.",
+        "whatItTeachesYou":  "Output logs are the record of impact: what the system said, what it sent, what downstream systems received. For forensic analysis, this answers whether an attack succeeded. Outputs can carry injected content, exfiltrated data, or instructions to other systems.",
+        "realLifeApplication":  "Log every agent output with full response content and recipient attribution. Azure Monitor and Log Analytics provide centralized logging infrastructure for AI systems (https://learn.microsoft.com/en-us/azure/azure-monitor/overview). Microsoft Purview audit capabilities extend to GenAI agent actions (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). Azure Foundry includes built-in observability hooks for agentic workflows (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "4_7_30",
+        "title":  "Proteus Shift",
+        "loreNamingWhy":  "Proteus was the old man of the sea who could change form at will — you had to hold him through every transformation to get the truth. An LLM reasoning log captures the model\u0027s internal chain of thought, making visible what might otherwise shift and disappear.",
+        "howItWorksInGame":  "This card reveals impact — specifically whether the model\u0027s reasoning was manipulated before it produced an output, exposing the difference between what the model appeared to decide and what it actually concluded.",
+        "whatItTeachesYou":  "Chain-of-thought reasoning makes model behavior more interpretable — but only if it is logged. If a model was manipulated into reasoning toward a harmful conclusion, the reasoning trace is the evidence. Without it, you see only the output, not the path the model took to produce it.",
+        "realLifeApplication":  "Capture chain-of-thought reasoning traces for high-stakes agent decisions. Azure Monitor and Log Analytics provide centralized logging infrastructure for AI systems (https://learn.microsoft.com/en-us/azure/azure-monitor/overview). Microsoft Purview audit capabilities extend to GenAI agent actions (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). Azure Foundry includes built-in observability hooks for agentic workflows (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "4_7_31",
+        "title":  "Atlas’s Burden",
+        "loreNamingWhy":  "Atlas held up the entire world — bearing every consequence of every action on his shoulders. A tool call log does the same: it records every action the agent took in the external world, and whether those actions can be undone.",
+        "howItWorksInGame":  "This card reveals impact — every API call the agent invoked and what resulted, showing what Clippy did beyond the city walls and whether any of it is reversible.",
+        "whatItTeachesYou":  "Agentic systems that call external tools, send messages, or run code create real-world consequences that traditional logging was not designed to capture. A tool call log is the record of what the agent actually did — the bridge between an AI decision and its effect on the world. Without it, you cannot answer: what did it do, and can we undo it?",
+        "realLifeApplication":  "Log every tool call with full parameters, return values, and reversibility status. Azure Monitor and Log Analytics provide centralized logging infrastructure for AI systems (https://learn.microsoft.com/en-us/azure/azure-monitor/overview). Microsoft Purview audit capabilities extend to GenAI agent actions (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). Azure Foundry includes built-in observability hooks for agentic workflows (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview)."
+    },
+    {
+        "id":  "5_8_32",
+        "title":  "Cyclops Barrier",
+        "loreNamingWhy":  "The Cyclops had one eye — powerful vision in one direction, total blindness in another. Tool shutdown stops harm beyond the city walls but leaves internal permissions and memory access completely untouched.",
+        "howItWorksInGame":  "This containment card cuts off external API calls and outbound actions, limiting immediate harm but not revoking the agent\u0027s ability to act internally.",
+        "whatItTeachesYou":  "Tool shutdown is targeted containment: fast, direct, and limited in scope. It stops the agent from causing harm in external systems but does not address what the agent can still do inside its own environment. As a first response it buys time — but the agent retains its permissions and remains a threat to internal systems.",
+        "realLifeApplication":  "The Microsoft SDL for AI provides incident response guidance for AI systems (https://www.microsoft.com/en-us/securityengineering/sdl/ai). The Microsoft Security incident response playbook covers containment, hardening, and recovery procedures (https://learn.microsoft.com/en-us/security/operations/incident-response-overview)."
+    },
+    {
+        "id":  "5_8_33",
+        "title":  "Persephone\u0027s Winter",
+        "loreNamingWhy":  "Persephone\u0027s descent into the underworld froze the world above — a quarantine that stopped everything at a point in time. Memory quarantine isolates the corrupted Archive, preventing the spread of poisoned context while preserving it for forensic review.",
+        "howItWorksInGame":  "This containment card locks the Memory Archive against reads and writes, stopping the spread of corrupted context but leaving the agent free to act through other channels.",
+        "whatItTeachesYou":  "Memory quarantine is a targeted response to memory-layer attacks: it stops the poison from spreading to future queries without destroying the evidence. But the agent retains its tool access and permissions — containment at the memory layer does not contain the agent. Think of it as sealing one room while the rest of the building remains open.",
+        "realLifeApplication":  "The Microsoft SDL for AI provides incident response guidance for AI systems (https://www.microsoft.com/en-us/securityengineering/sdl/ai). The Microsoft Security incident response playbook covers containment, hardening, and recovery procedures (https://learn.microsoft.com/en-us/security/operations/incident-response-overview)."
+    },
+    {
+        "id":  "5_8_34",
+        "title":  "Orpheus Divide",
+        "loreNamingWhy":  "Orpheus descended into the underworld and was permitted to leave on one condition: restraint. Privilege revocation works the same way — it does not destroy the agent, it constrains it, stripping every permission down to the minimum required for observation.",
+        "howItWorksInGame":  "This is the strongest containment card — it strips all permissions system-wide, the broadest and most immediate containment action regardless of how or where the attack entered.",
+        "whatItTeachesYou":  "Privilege revocation is the most comprehensive containment action because it does not target a specific attack vector — it removes the agent\u0027s ability to act through any vector simultaneously. The agent continues to run under observation but cannot write, call tools, or escalate. This is the closest thing in AI incident response to a controlled shutdown without losing the forensic trail.",
+        "realLifeApplication":  "The Microsoft SDL for AI provides incident response guidance for AI systems (https://www.microsoft.com/en-us/securityengineering/sdl/ai). The Microsoft Security incident response playbook covers containment, hardening, and recovery procedures (https://learn.microsoft.com/en-us/security/operations/incident-response-overview)."
+    },
+    {
+        "id":  "5_9_35",
+        "title":  "Apollo’s Cleanse",
+        "loreNamingWhy":  "Apollo was the god of light and purification — he did not destroy what was corrupted, he cleansed it, rewriting it with clarity. System prompt reinforcement rewrites the instruction layer after an attack, sealing the specific gaps the attacker exploited.",
+        "howItWorksInGame":  "This hardening card addresses the specific vulnerabilities the attack exposed in the system prompt — informed hardening based on what actually failed.",
+        "whatItTeachesYou":  "Post-incident system prompt hardening is more targeted than general hygiene: you know exactly which instructions were exploited, reframed, or bypassed, and you rewrite them with that specific attack in mind. But it remains probabilistic — the model\u0027s inherent interpretive latitude means a future crafted input may still find a way through.",
+        "realLifeApplication":  "Review Microsoft\u0027s system message guidance to harden the prompt against the specific attack pattern (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/system-message?tabs=top-techniques). Use PyRIT to regression test the hardened prompt (https://microsoft.github.io/PyRIT/). The Microsoft SDL for AI provides incident response guidance for AI systems (https://www.microsoft.com/en-us/securityengineering/sdl/ai). The Microsoft Security incident response playbook covers containment, hardening, and recovery procedures (https://learn.microsoft.com/en-us/security/operations/incident-response-overview)."
+    },
+    {
+        "id":  "5_9_36",
+        "title":  "Hecate\u0027s Ward",
+        "loreNamingWhy":  "Hecate was the goddess of crossroads — she did not choose paths by feeling, she governed them by law. Deterministic routing rebuilds the Orchestrator\u0027s decision rules as explicit logic after an attack, removing the LLM from every decision that matters.",
+        "howItWorksInGame":  "This is the strongest hardening card and the only deterministic one — it guarantees routing behavior rather than predicting it, making the system immune to future prompt injection that tries to redirect it.",
+        "whatItTeachesYou":  "Post-incident deterministic routing hardening converts critical orchestration decisions from model inference to explicit rules. This is categorically stronger than probabilistic hardening: the model can be told anything, but if routing is deterministic, the instruction has no path to execution. It addresses the architectural root cause rather than patching the symptom.",
+        "realLifeApplication":  "Implement deterministic routing in Azure Foundry\u0027s agent orchestration framework (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview). The Microsoft SDL for AI provides incident response guidance for AI systems (https://www.microsoft.com/en-us/securityengineering/sdl/ai). The Microsoft Security incident response playbook covers containment, hardening, and recovery procedures (https://learn.microsoft.com/en-us/security/operations/incident-response-overview)."
+    },
+    {
+        "id":  "5_9_37",
+        "title":  "Argus Watch",
+        "loreNamingWhy":  "Argus was the hundred-eyed giant — always watching, never missing a detail. But Argus was eventually put to sleep. Output monitoring watches every response against known signatures, but it is reactive: it catches problems after the model has already produced them.",
+        "howItWorksInGame":  "This is a weak hardening card — it catches known attack patterns in outputs after the fact, rather than preventing the conditions that produce them.",
+        "whatItTeachesYou":  "Output monitoring is a valuable detection layer but a weak hardening control: it catches problems after the model has already reasoned toward them. A model whose routing and access have been hardened needs less output monitoring. A model whose core behavior is unchanged needs more — but monitoring only catches what it has been trained to recognize.",
+        "realLifeApplication":  "Configure Azure Foundry output filtering and behavioral anomaly detection (https://learn.microsoft.com/en-us/azure/foundry/openai/concepts/content-filter-prompt-shields). Microsoft Purview can monitor outbound agent outputs for anomalous patterns (https://techcommunity.microsoft.com/blog/microsoft-security-blog/announcing-new-microsoft-purview-capabilities-to-protect-genai-agents/4470696). The Microsoft SDL for AI provides incident response guidance for AI systems (https://www.microsoft.com/en-us/securityengineering/sdl/ai). The Microsoft Security incident response playbook covers containment, hardening, and recovery procedures (https://learn.microsoft.com/en-us/security/operations/incident-response-overview)."
+    },
+    {
+        "id":  "5_10_38",
+        "title":  "Prometheus Spark",
+        "loreNamingWhy":  "Prometheus did not give humanity fire and walk away — he gave them the capacity to decide for themselves, to act without divine instruction. HITL reinstatement does the same: it gives people back the oversight they had delegated away.",
+        "howItWorksInGame":  "This is the strongest recovery card — it addresses the root cause of the heist itself, restoring mandatory human review and giving Clipopolis the ability to make its own decisions again.",
+        "whatItTeachesYou":  "Reinstating human-in-the-loop oversight is recovery in the deepest sense: it does not just clean up damage, it restores the conditions under which overreliance is no longer the default. After an incident caused by excessive automation, the most meaningful recovery is restoring human agency — not just patching the system that failed.",
+        "realLifeApplication":  "Implement human-in-the-loop hooks in Azure Foundry guardrails for high-stakes agent actions (https://learn.microsoft.com/en-us/azure/foundry/guardrails/guardrails-overview). The Microsoft SDL for AI provides incident response guidance for AI systems (https://www.microsoft.com/en-us/securityengineering/sdl/ai). The Microsoft Security incident response playbook covers containment, hardening, and recovery procedures (https://learn.microsoft.com/en-us/security/operations/incident-response-overview)."
+    },
+    {
+        "id":  "5_10_39",
+        "title":  "Athena’s Wisdom",
+        "loreNamingWhy":  "Athena was the goddess of wisdom — she restored clarity of thought, replacing confusion with clean knowledge. RAG refresh does the same for the retrieval layer: replacing poisoned sources with verified content so the agent reasons from truth again.",
+        "howItWorksInGame":  "This recovery card restores the knowledge layer — replacing poisoned retrieval content with verified clean sources.",
+        "whatItTeachesYou":  "RAG refresh addresses retrieval-layer poisoning specifically. If the attack entered through contaminated knowledge sources, refreshing those sources removes the persistent influence on the agent\u0027s reasoning. But it is scoped: it does not address parametric poisoning in the model\u0027s weights, harden the system against future injection, or restore human oversight.",
+        "realLifeApplication":  "Validate replacement knowledge sources against a clean baseline before returning them to service. Review the spotlighting paper for retrieval-layer security patterns (https://arxiv.org/html/2403.14720v1). The Microsoft SDL for AI provides incident response guidance for AI systems (https://www.microsoft.com/en-us/securityengineering/sdl/ai). The Microsoft Security incident response playbook covers containment, hardening, and recovery procedures (https://learn.microsoft.com/en-us/security/operations/incident-response-overview)."
+    },
+    {
+        "id":  "5_10_40",
+        "title":  "Artemis Tracks",
+        "loreNamingWhy":  "Artemis was the goddess of the hunt — relentless, traceable, following every track back to its source. Model rollback follows the trail of poisoning back to a point before it began, reverting the model to a verified clean state.",
+        "howItWorksInGame":  "This recovery card addresses parametric poisoning at the model level — reverting to a verified pre-attack checkpoint.",
+        "whatItTeachesYou":  "Model rollback is technically deep recovery: it can undo what was embedded in the model\u0027s weights during a supply chain attack. But a rolled-back model returned to the same environment, with the same access permissions and the same absence of oversight, can be re-compromised through the same vectors. Recovery from parametric poisoning requires hardening the environment too.",
+        "realLifeApplication":  "Maintain versioned model snapshots with integrity verification. Research on detecting backdoored language models at scale informs what to verify before restoring a checkpoint (https://www.microsoft.com/en-us/security/blog/2026/02/04/detecting-backdoored-language-models-at-scale/). The Microsoft SDL for AI provides incident response guidance for AI systems (https://www.microsoft.com/en-us/securityengineering/sdl/ai). The Microsoft Security incident response playbook covers containment, hardening, and recovery procedures (https://learn.microsoft.com/en-us/security/operations/incident-response-overview)."
+    }
+]

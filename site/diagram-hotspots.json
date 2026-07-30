@@ -1,0 +1,418 @@
+{
+  "version": 1,
+  "generatedAt": "2026-05-04T22:27:48.580Z",
+  "source": {
+    "input": ".\\assets\\Diagram.pptx",
+    "resolvedPath": "C:\\Users\\aofstein\\medusa\\NEW_Landing\\assets\\Diagram.pptx",
+    "slideIndex": 1,
+    "parser": "ppt-to-json + pptx-xml"
+  },
+  "canvas": {
+    "width": 12192000,
+    "height": 6858000,
+    "unit": "emu"
+  },
+  "components": [
+    {
+      "id": "shape-orchestrator-1",
+      "name": "Orchestrator",
+      "position": {
+        "xPercent": 49.942,
+        "yPercent": 12.829,
+        "widthPercent": 5.04,
+        "heightPercent": 3.9
+      },
+      "description": "Central coordination layer that routes requests, controls flow, and orchestrates model/tool interactions."
+    },
+    {
+      "id": "shape-system-prompt-2",
+      "name": "System Prompt",
+      "position": {
+        "xPercent": 76.868,
+        "yPercent": 40.369,
+        "widthPercent": 5.46,
+        "heightPercent": 3.9
+      },
+      "description": "Core control instructions constraining the model behavior and output style."
+    },
+    {
+      "id": "shape-other-external-services-including-mcp-3",
+      "name": "Other External Services, Including MCP",
+      "position": {
+        "xPercent": 44.618,
+        "yPercent": 77.045,
+        "widthPercent": 9.567,
+        "heightPercent": 3.9
+      },
+      "description": "External systems and services invoked beyond local tool inventory."
+    },
+    {
+      "id": "shape-user-request-or-trigger-5",
+      "name": "User Request or Trigger",
+      "position": {
+        "xPercent": 13.031,
+        "yPercent": 19.638,
+        "widthPercent": 9.24,
+        "heightPercent": 3.9
+      },
+      "description": "The user entry point where prompts, commands, and requests begin execution."
+    },
+    {
+      "id": "shape-content-filtering-6",
+      "name": "Content Filtering",
+      "position": {
+        "xPercent": 39.147,
+        "yPercent": 19.639,
+        "widthPercent": 7.14,
+        "heightPercent": 3.9
+      },
+      "description": "Screens content for unsafe instructions and policy violations before deeper processing."
+    },
+    {
+      "id": "shape-tools-inventory-schema-7",
+      "name": "Tools (Inventory + Schema)",
+      "position": {
+        "xPercent": 39.677,
+        "yPercent": 51.17,
+        "widthPercent": 10.5,
+        "heightPercent": 3.9
+      },
+      "description": "Registry of available tools and their callable schema contracts."
+    },
+    {
+      "id": "shape-output-8",
+      "name": "Output",
+      "position": {
+        "xPercent": 24.576,
+        "yPercent": 61.781,
+        "widthPercent": 4.2,
+        "heightPercent": 3.9
+      },
+      "description": "Final response channel back to the user or calling surface."
+    },
+    {
+      "id": "shape-llm-reasoning-planning-9",
+      "name": "LLM Reasoning / Planning",
+      "position": {
+        "xPercent": 74.558,
+        "yPercent": 26.183,
+        "widthPercent": 10.08,
+        "heightPercent": 3.9
+      },
+      "description": "Model reasoning stage that interprets plan + context and decides the next action."
+    },
+    {
+      "id": "shape-execution-call-tools-10",
+      "name": "Execution (Call Tools)",
+      "position": {
+        "xPercent": 75.188,
+        "yPercent": 54.095,
+        "widthPercent": 8.82,
+        "heightPercent": 3.9
+      },
+      "description": "Runtime execution layer where tools are called and results are returned."
+    },
+    {
+      "id": "shape-long-term-memory-storage-11",
+      "name": "Long-Term Memory Storage",
+      "position": {
+        "xPercent": 55.305,
+        "yPercent": 89.239,
+        "widthPercent": 9.567,
+        "heightPercent": 3.9
+      },
+      "description": "Persistent memory store used across sessions."
+    },
+    {
+      "id": "shape-task-analysis-17",
+      "name": "Task Analysis",
+      "position": {
+        "xPercent": 60.198,
+        "yPercent": 59.932,
+        "widthPercent": 5.46,
+        "heightPercent": 3.9
+      },
+      "description": "Evaluates task/tool intent for policy, risk, and escalation requirements."
+    },
+    {
+      "id": "shape-abort-or-hitl-18",
+      "name": "Abort or HITL",
+      "position": {
+        "xPercent": 60.198,
+        "yPercent": 72.722,
+        "widthPercent": 5.46,
+        "heightPercent": 3.9
+      },
+      "description": "Decision checkpoint where risky actions are either blocked or escalated to human review."
+    },
+    {
+      "id": "shape-planning-loop-21",
+      "name": "Planning Loop",
+      "position": {
+        "xPercent": 60.408,
+        "yPercent": 29.582,
+        "widthPercent": 5.04,
+        "heightPercent": 3.9
+      },
+      "description": "Builds the task execution strategy and iterates until plan quality checks pass."
+    },
+    {
+      "id": "shape-task-turn-context-22",
+      "name": "Task (Turn) Context",
+      "position": {
+        "xPercent": 60.088,
+        "yPercent": 37.207,
+        "widthPercent": 5.68,
+        "heightPercent": 5.917
+      },
+      "description": "Holds immediate turn-specific context used for this request cycle."
+    },
+    {
+      "id": "shape-spotlighting-23",
+      "name": "Spotlighting",
+      "position": {
+        "xPercent": 42.98,
+        "yPercent": 49.161,
+        "widthPercent": 5.04,
+        "heightPercent": 3.9
+      },
+      "description": "Isolation stage for suspicious prompt segments, especially potential XPIA patterns."
+    },
+    {
+      "id": "shape-prompt-editing-24",
+      "name": "Prompt Editing",
+      "position": {
+        "xPercent": 42.464,
+        "yPercent": 49.868,
+        "widthPercent": 5.88,
+        "heightPercent": 3.9
+      },
+      "description": "Sanitizes or rewrites unsafe prompt text before it reaches planning and execution."
+    },
+    {
+      "id": "shape-rag-29",
+      "name": "RAG",
+      "position": {
+        "xPercent": 31.04,
+        "yPercent": 86.528,
+        "widthPercent": 4.2,
+        "heightPercent": 3.9
+      },
+      "description": "Retrieval pipeline entry for grounding responses with external knowledge."
+    },
+    {
+      "id": "shape-data-store-30",
+      "name": "Data Store",
+      "position": {
+        "xPercent": 28.061,
+        "yPercent": 86.528,
+        "widthPercent": 4.2,
+        "heightPercent": 3.9
+      },
+      "description": "Structured backing store used by retrieval and lookup operations."
+    },
+    {
+      "id": "shape-vector-database-31",
+      "name": "Vector Database",
+      "position": {
+        "xPercent": 34.31,
+        "yPercent": 86.528,
+        "widthPercent": 6.72,
+        "heightPercent": 3.9
+      },
+      "description": "Embedding index used for semantic retrieval during RAG."
+    }
+  ],
+  "arrows": [
+    {
+      "id": "arrow-label-ok-1",
+      "name": "OK",
+      "position": {
+        "xPercent": 64.625,
+        "yPercent": 59.836,
+        "widthPercent": 1.922,
+        "heightPercent": 0.615
+      },
+      "midX": 65.586,
+      "midY": 60.143,
+      "description": "Validation/health signal indicating this path passed checks."
+    },
+    {
+      "id": "arrow-label-response-2",
+      "name": "Response",
+      "position": {
+        "xPercent": 50.461,
+        "yPercent": 78.719,
+        "widthPercent": 3.873,
+        "heightPercent": 0.768
+      },
+      "midX": 52.398,
+      "midY": 79.103,
+      "description": "Response-direction flow returning to an upstream component."
+    },
+    {
+      "id": "arrow-label-request-3",
+      "name": "Request",
+      "position": {
+        "xPercent": 53.106,
+        "yPercent": 78.639,
+        "widthPercent": 3.374,
+        "heightPercent": 0.929
+      },
+      "midX": 54.793,
+      "midY": 79.103,
+      "description": "Request-direction flow into a downstream component."
+    },
+    {
+      "id": "arrow-label-authentication-authorization-4",
+      "name": "Authentication & Authorization",
+      "position": {
+        "xPercent": 37.978,
+        "yPercent": 32.024,
+        "widthPercent": 8.173,
+        "heightPercent": 5.385
+      },
+      "midX": 42.065,
+      "midY": 34.717,
+      "description": "Performs identity and permission checks before entering orchestration flow."
+    },
+    {
+      "id": "arrow-label-tool-call-5",
+      "name": "Tool Call",
+      "position": {
+        "xPercent": 68.58,
+        "yPercent": 62.079,
+        "widthPercent": 2.602,
+        "heightPercent": 2.452
+      },
+      "midX": 69.881,
+      "midY": 63.305,
+      "description": "Outgoing request from model/orchestrator to execute a tool action."
+    },
+    {
+      "id": "arrow-label-invoke-hitl-6",
+      "name": "Invoke HITL",
+      "position": {
+        "xPercent": 74.454,
+        "yPercent": 68.99,
+        "widthPercent": 3.111,
+        "heightPercent": 3.9
+      },
+      "midX": 76.009,
+      "midY": 70.94,
+      "description": "Escalation path requesting Human-in-the-Loop review."
+    },
+    {
+      "id": "arrow-label-xpia-detected-7",
+      "name": "XPIA Detected",
+      "position": {
+        "xPercent": 43.293,
+        "yPercent": 28.865,
+        "widthPercent": 5.46,
+        "heightPercent": 1.789
+      },
+      "midX": 46.023,
+      "midY": 29.759,
+      "description": "Indicates a potential cross-prompt injection pattern was identified."
+    },
+    {
+      "id": "arrow-label-ok-8",
+      "name": "OK",
+      "position": {
+        "xPercent": 64.473,
+        "yPercent": 51.35,
+        "widthPercent": 1.743,
+        "heightPercent": 0.635
+      },
+      "midX": 65.344,
+      "midY": 51.668,
+      "description": "Validation/health signal indicating this path passed checks."
+    },
+    {
+      "id": "arrow-label-ok-9",
+      "name": "OK",
+      "position": {
+        "xPercent": 54.221,
+        "yPercent": 41.947,
+        "widthPercent": 1.591,
+        "heightPercent": 1.789
+      },
+      "midX": 55.016,
+      "midY": 42.842,
+      "description": "Validation/health signal indicating this path passed checks."
+    },
+    {
+      "id": "arrow-label-tool-call-response-10",
+      "name": "Tool Call Response",
+      "position": {
+        "xPercent": 58.691,
+        "yPercent": 59.296,
+        "widthPercent": 6.502,
+        "heightPercent": 2.041
+      },
+      "midX": 61.942,
+      "midY": 60.316,
+      "description": "Return payload from tool execution back into reasoning/planning flow."
+    },
+    {
+      "id": "arrow-label-response-11",
+      "name": "Response",
+      "position": {
+        "xPercent": 50.326,
+        "yPercent": 78.719,
+        "widthPercent": 3.873,
+        "heightPercent": 0.768
+      },
+      "midX": 52.263,
+      "midY": 79.103,
+      "description": "Response-direction flow returning to an upstream component."
+    },
+    {
+      "id": "arrow-label-request-12",
+      "name": "Request",
+      "position": {
+        "xPercent": 53.317,
+        "yPercent": 78.639,
+        "widthPercent": 3.374,
+        "heightPercent": 0.929
+      },
+      "midX": 55.004,
+      "midY": 79.103,
+      "description": "Request-direction flow into a downstream component."
+    },
+    {
+      "id": "arrow-label-response-13",
+      "name": "Response",
+      "position": {
+        "xPercent": 50.326,
+        "yPercent": 78.719,
+        "widthPercent": 3.873,
+        "heightPercent": 0.768
+      },
+      "midX": 52.263,
+      "midY": 79.103,
+      "description": "Response-direction flow returning to an upstream component."
+    },
+    {
+      "id": "arrow-label-request-14",
+      "name": "Request",
+      "position": {
+        "xPercent": 53.317,
+        "yPercent": 78.639,
+        "widthPercent": 3.374,
+        "heightPercent": 0.929
+      },
+      "midX": 55.004,
+      "midY": 79.103,
+      "description": "Request-direction flow into a downstream component."
+    }
+  ],
+  "pptTextSlides": [
+    {
+      "slideIndex": 1,
+      "lines": [
+        "ppt-to-json parse failed: Error converting file: Error: Could not find soffice binary"
+      ]
+    }
+  ]
+}
